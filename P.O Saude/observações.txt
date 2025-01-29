@@ -1,5 +1,0 @@
-é, eu ainda não fiz o arquivo que le as datas criadas e passa para o modelo python
-também falta fazer o mapa melhor, mas vai ser trabalhoso pegar aas informações que o modelo entrega e passar para o mapa
-então pretendo fazer semana que vem.
-
-Não coloquei os arquivos em csv e xlsx pois fica muito grande mesmo comprimido
