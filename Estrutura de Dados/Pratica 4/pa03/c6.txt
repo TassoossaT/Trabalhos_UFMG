@@ -1,0 +1,47 @@
+aqui é mais complexo, pelo valgrind:
+existe um free invalido chamado pela linha 21
+não só isso como um problema no calloc da linha 19 devido a um erro na linha 12
+Basicamente a realocação de memoria está sendo armazenado somente dentro de dPtr
+existe duas formas de resolver isso, a que acho melhor é não usar um ponteiro auxiliar
+    array->data = realloc(array->data, 15 * sizeof(int32_t)); //doesn't update array->data
+    return array
+mas se for preciso usar ele por algum motivo é precsio atualizar o array
+
+    int32_t* dPtr = array->data;
+    dPtr =  realloc(dPtr, 15 * sizeof(int32_t)); //doesn't update array->data
+    array->data = dPtr;
+==21896== Memcheck, a memory error detector
+==21896== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==21896== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==21896== Command: ./c6
+==21896== 
+==21896== Invalid free() / delete / delete[] / realloc()
+==21896==    at 0x484B27F: free (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==21896==    by 0x109215: main (c6.c:21)
+==21896==  Address 0x4a8d090 is 0 bytes inside a block of size 40 free'd
+==21896==    at 0x484DCD3: realloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==21896==    by 0x1091B4: resizeArray (c6.c:12)
+==21896==    by 0x109202: main (c6.c:19)
+==21896==  Block was alloc'd at
+==21896==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==21896==    by 0x1091EC: main (c6.c:18)
+==21896== 
+==21896== 
+==21896== HEAP SUMMARY:
+==21896==     in use at exit: 60 bytes in 1 blocks
+==21896==   total heap usage: 3 allocs, 3 frees, 116 bytes allocated
+==21896== 
+==21896== 60 bytes in 1 blocks are definitely lost in loss record 1 of 1
+==21896==    at 0x484DCD3: realloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==21896==    by 0x1091B4: resizeArray (c6.c:12)
+==21896==    by 0x109202: main (c6.c:19)
+==21896== 
+==21896== LEAK SUMMARY:
+==21896==    definitely lost: 60 bytes in 1 blocks
+==21896==    indirectly lost: 0 bytes in 0 blocks
+==21896==      possibly lost: 0 bytes in 0 blocks
+==21896==    still reachable: 0 bytes in 0 blocks
+==21896==         suppressed: 0 bytes in 0 blocks
+==21896== 
+==21896== For lists of detected and suppressed errors, rerun with: -s
+==21896== ERROR SUMMARY: 2 errors from 2 contexts (suppressed: 0 from 0)

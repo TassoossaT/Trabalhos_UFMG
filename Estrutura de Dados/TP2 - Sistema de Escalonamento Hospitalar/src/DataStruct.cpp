@@ -1,131 +1,178 @@
 #include "DataStruct.hpp"
-#include "pacient.hpp"
-#include "Statistics.hpp"
+#include "Patient.hpp"
+#include "Procedure.hpp" // Include the full definition of Unit
 #include <stdexcept>
+#include <iostream>
+#include <ostream>
 
+// Explicit template instantiation
+template class MinHeap<Patient, Date>;
+template class MinHeap<Patient, int>;
+template class MinHeap<Procedure::Unit, Date>; // Add this line
 
-template class SequentialList<Pacient>;
-
-MinHeap::MinHeap() : capacity(1), size(0) {heap = new Pacient*[capacity];}
-MinHeap::~MinHeap() {delete[] heap;}
-
-void MinHeap::swap(Pacient*& a, Pacient*& b)
+template <typename T, typename U>
+MinHeap<T, U>::MinHeap(U (T::*sortParam)() const) : capacity(10), size(0), sortParam(sortParam) 
 {
-    Pacient* temp = a;
-    a = b;
-    b = temp;
+    heap = new T*[capacity];
 }
 
-void MinHeap::heapifyUp(int index)
-{
-    while (index > 0 && heap[index]->getAdmissionDate() < heap[(index - 1) / 2]->getAdmissionDate())
-    {
-        swap(heap[index], heap[(index - 1) / 2]);
-        index = (index - 1) / 2;
-    }
-}
+template <typename T, typename U>
+MinHeap<T, U>::~MinHeap() {delete[] heap;}
 
-void MinHeap::heapifyDown(int index)
+template <typename T, typename U>
+void MinHeap<T, U>::insert(T* element) 
 {
-    int small = index;
-    int left = 2 * index + 1;
-    int right = 2 * index + 2;
-
-    if (left < size && heap[left]->getAdmissionDate() < heap[small]->getAdmissionDate()){small = left;}
-    if (right < size && heap[right]->getAdmissionDate() < heap[small]->getAdmissionDate()){small = right;}
-    if (small != index)
-    {
-        swap(heap[index], heap[small]);
-        heapifyDown(small);
-    }
-}
-
-void MinHeap::resize()
-{
-    capacity *= 2;
-    Pacient** newHeap = new Pacient*[capacity];
-    for (int i = 0; i < size; i++)
-    {
-        newHeap[i] = heap[i];
-    }
-    delete[] heap;
-    heap = newHeap;
-}
-
-void MinHeap::insert(Pacient* element)
-{
-    if (size == capacity)
-    {
-        resize();
-    }
+    if (size == capacity) {resize();}
     heap[size] = element;
     heapifyUp(size);
     size++;
 }
 
-Pacient* MinHeap::getMin()
+template <typename T, typename U>
+T* MinHeap<T, U>::extractMin() 
 {
-    if (size == 0)
-    {
-        throw std::runtime_error("Heap is empty");
-    }
-    Pacient* minElement = heap[0];
+    if (isEmpty()) {return nullptr;}
+    T* minElement = heap[0];
     heap[0] = heap[size - 1];
     size--;
     heapifyDown(0);
     return minElement;
 }
 
-bool MinHeap::isEmpty() const{return size == 0;}
+template <typename T, typename U>
+T* MinHeap<T, U>::viewMin() const 
+{
+    if (isEmpty()) {return nullptr;}
+    return heap[0];
+}
+
+template <typename T, typename U>
+bool MinHeap<T, U>::isEmpty() const {return size == 0;}
+
+template <typename T, typename U>
+int MinHeap<T, U>::getSize() const {return size;}
+
+template <typename T, typename U>
+void MinHeap<T, U>::heapifyUp(int index) 
+{
+    while (index > 0) 
+    {
+        int parentIndex = (index - 1) / 2;
+        if ((heap[index]->*sortParam)() > (heap[parentIndex]->*sortParam)() || 
+            ((heap[index]->*sortParam)() == (heap[parentIndex]->*sortParam)() && 
+            heap[index]->getId() > heap[parentIndex]->getId()))
+        {
+            break;
+        }
+        swap(heap[index], heap[parentIndex]);
+        index = parentIndex;
+    }
+}
+
+template <typename T, typename U>
+void MinHeap<T, U>::heapifyDown(int index) 
+{
+    while (2 * index + 1 < size) 
+    {
+        int leftChild = 2 * index + 1;
+        int rightChild = 2 * index + 2;
+        int smallest = leftChild;
+        if (rightChild < size && 
+            ((heap[rightChild]->*sortParam)() < (heap[leftChild]->*sortParam)() || 
+            ((heap[rightChild]->*sortParam)() == (heap[leftChild]->*sortParam)() && heap[rightChild]->getId() < heap[leftChild]->getId())))
+        {
+            smallest = rightChild;
+        }
+        if ((heap[index]->*sortParam)() < (heap[smallest]->*sortParam)() || 
+            ((heap[index]->*sortParam)() == (heap[smallest]->*sortParam)() && heap[index]->getId() <= heap[smallest]->getId()))
+        {
+            break;
+        }
+        swap(heap[index], heap[smallest]);
+        index = smallest;
+    }
+}
+
+template <typename T, typename U>
+void MinHeap<T, U>::resize() {
+    capacity *= 2;
+    T** newHeap = new T*[capacity];
+    for (int i = 0; i < size; ++i) {
+        newHeap[i] = heap[i];
+    }
+    delete[] heap;
+    heap = newHeap;
+}
+
+template <typename T, typename U>
+void MinHeap<T, U>::swap(T*& a, T*& b) {
+    T* temp = a;
+    a = b;
+    b = temp;
+}
 
 // Queue implementation
-Queue::Queue() : red(), yellow(), green(), stats() {}
+Queue::Queue() : red(&Patient::getInsertQueueDate), yellow(&Patient::getInsertQueueDate), green(&Patient::getInsertQueueDate){}
 
-void Queue::insert(Pacient* paciente)
+void Queue::insert(Patient* patient, Date QueueDate)
 {
-    switch (pacient.grauUrgencia)
+    patient->setInsertQueueDate(QueueDate);
+    switch (patient->getUrgencyLevel())
     {
         case 2:
-            red.insert(pacient);
+            red.insert(patient);
             break;
         case 1:
-            yellow.insert(paciente);
+            yellow.insert(patient);
             break;
         case 0:
-            green.insert(paciente);
+            green.insert(patient);
             break;
         default:
             throw std::invalid_argument("Invalid urgency level");
     }
 }
 
-Pacient* Queue::getMin()
+Patient* Queue::extractMin()
 {
-    Pacient* paciente = nullptr;
+    Patient* patient = nullptr;
     if (!red.isEmpty())
     {
-        paciente = red.getMin();
+        patient = red.extractMin();
     }
     else if (!yellow.isEmpty())
     {
-        paciente = yellow.getMin();
+        patient = yellow.extractMin();
     }
     else if (!green.isEmpty())
     {
-        paciente = green.getMin();
+        patient = green.extractMin();
     }
     else
     {
         throw std::runtime_error("All queues are empty");
     }
+    return patient;
+}
 
-    if (paciente)
+Patient* Queue::viewMin()
+{
+    if (!red.isEmpty())
     {
-        stats.addWaitingTime(paciente->getWaitingTime());
-        stats.addServiceTime(paciente->getServiceTime());
+        return red.viewMin();
     }
-
-    return paciente;
+    else if (!yellow.isEmpty())
+    {
+        return yellow.viewMin();
+    }
+    else if (!green.isEmpty())
+    {
+        return green.viewMin();
+    }
+    else
+    {
+        throw std::runtime_error("All queues are empty");
+    }
 }
 
 bool Queue::isEmpty() const
@@ -133,49 +180,3 @@ bool Queue::isEmpty() const
     return red.isEmpty() && yellow.isEmpty() && green.isEmpty();
 }
 
-double Queue::getAverageWaitingTime() const
-{
-    return stats.getAverageWaitingTime();
-}
-
-double Queue::getAverageServiceTime() const
-{
-    return stats.getAverageServiceTime();
-}
-
-// Constructor for SequentialList
-template <typename T>
-SequentialList<T>::SequentialList(int n) : elements(nullptr), indices(nullptr), size(0), capacity(n)
-{
-    erroAssert_cond(n > 0, "Capacity must be greater than 0");
-    try
-    {
-        elements = new T[n];
-        indices = new int[n];
-    } catch (const std::bad_alloc& e)
-    {
-        std::cerr << "n :" << n << std::endl; // Debug print
-        std::cerr << "Memory allocation failed: " << e.what() << std::endl;
-        throw;
-    }
-}
-
-// Destructor for SequentialList
-template <typename T>
-SequentialList<T>::~SequentialList()
-{
-    delete[] elements;
-    delete[] indices;
-}
-template <typename T>
-void SequentialList<T>::insert(const T& value)
-{
-    indices[size] = size;
-    elements[indices[size]] = value;
-    size++;
-}
-template <typename T>
-T& SequentialList<T>::operator[](int index)
-{
-    return elements[indices[index]];
-}

@@ -1,0 +1,16 @@
+\babel@toc {brazil}{}\relax 
+\contentsline {section}{\numberline {1}Introdução}{3}{section.1}%
+\contentsline {section}{\numberline {2}Método}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}MinHeap}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Queue}{5}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Patient}{5}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Procedure}{6}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}Date}{6}{subsection.2.5}%
+\contentsline {section}{\numberline {3}Análise de Complexidade}{7}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Complexidade de Tempo}{7}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Complexidade de Espaço}{7}{subsection.3.2}%
+\contentsline {section}{\numberline {4}Estratégias de Robustez}{8}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Programação Defensiva}{8}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Tolerância a Falhas}{8}{subsection.4.2}%
+\contentsline {section}{\numberline {5}Análise Experimental}{9}{section.5}%
+\contentsline {section}{\numberline {6}Conclusões}{9}{section.6}%

@@ -1,0 +1,1 @@
+valor de n não inicializado

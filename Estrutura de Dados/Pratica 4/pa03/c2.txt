@@ -1,0 +1,49 @@
+Analisando o codigo c2 é possivel ver que os loop for estão mal configurados
+o primero vai de <9 ou seja até i=8, enquanto o print tenta printar o i=9 
+que não existe, o valgrind mostra a tentativa de impressão de um valor não listado
+novamente não consigo analisar o erro usando gdb, tento observar o comportamento
+passo a passo porrem não vejo o erro igual no valgrind
+
+==1272== Memcheck, a memory error detector
+==1272== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==1272== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==1272== Command: ./c2
+==1272== 
+==1272== Conditional jump or move depends on uninitialised value(s)
+==1272==    at 0x48D7AD6: __vfprintf_internal (vfprintf-internal.c:1516)
+==1272==    by 0x48C179E: printf (printf.c:33)
+==1272==    by 0x1091F1: main (c2.c:10)
+==1272== 
+==1272== Use of uninitialised value of size 8
+==1272==    at 0x48BB2EB: _itoa_word (_itoa.c:177)
+==1272==    by 0x48D6ABD: __vfprintf_internal (vfprintf-internal.c:1516)
+==1272==    by 0x48C179E: printf (printf.c:33)
+==1272==    by 0x1091F1: main (c2.c:10)
+==1272== 
+==1272== Conditional jump or move depends on uninitialised value(s)
+==1272==    at 0x48BB2FC: _itoa_word (_itoa.c:177)
+==1272==    by 0x48D6ABD: __vfprintf_internal (vfprintf-internal.c:1516)
+==1272==    by 0x48C179E: printf (printf.c:33)
+==1272==    by 0x1091F1: main (c2.c:10)
+==1272== 
+==1272== Conditional jump or move depends on uninitialised value(s)
+==1272==    at 0x48D75C3: __vfprintf_internal (vfprintf-internal.c:1516)
+==1272==    by 0x48C179E: printf (printf.c:33)
+==1272==    by 0x1091F1: main (c2.c:10)
+==1272== 
+==1272== Conditional jump or move depends on uninitialised value(s)
+==1272==    at 0x48D6C05: __vfprintf_internal (vfprintf-internal.c:1516)
+==1272==    by 0x48C179E: printf (printf.c:33)
+==1272==    by 0x1091F1: main (c2.c:10)
+==1272== 
+0 1 2 3 4 5 6 7 8 0 
+==1272== 
+==1272== HEAP SUMMARY:
+==1272==     in use at exit: 0 bytes in 0 blocks
+==1272==   total heap usage: 1 allocs, 1 frees, 4,096 bytes allocated
+==1272== 
+==1272== All heap blocks were freed -- no leaks are possible
+==1272== 
+==1272== Use --track-origins=yes to see where uninitialised values come from
+==1272== For lists of detected and suppressed errors, rerun with: -s
+==1272== ERROR SUMMARY: 5 errors from 5 contexts (suppressed: 0 from 0)

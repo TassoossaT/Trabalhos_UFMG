@@ -1,0 +1,3 @@
+juro que essa eu não entendi, basicamente um looping infito
+não entendi o proposito disso, apenas tirei e coloquei um free que não tinha
+nem fiz testes porque não sei o que o codigo queria com esse looping

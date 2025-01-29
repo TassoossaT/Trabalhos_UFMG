@@ -1,59 +1,75 @@
 #ifndef STRUCT_HPP
 #define STRUCT_HPP
 
-#include "pacient.hpp"
-#include "Statistics.hpp"
+#include "Patient.hpp"
 
+template <typename T, typename U>
 class MinHeap
 {
 private:
-    Pacient** heap;
+    T** heap;
     int capacity;
     int size;
     void heapifyUp(int);
     void heapifyDown(int);
     void resize();
-    void swap(Pacient*&, Pacient*&);
+    void swap(T*&, T*&);
+    U (T::*sortParam)() const;
 
 public:
-    MinHeap();
+    MinHeap(U (T::*sortParam)() const);
     ~MinHeap();
-    void insert(Pacient*);
-    Pacient* getMin();
+    void insert(T*);
+    T* extractMin();
+    T* viewMin() const;
     bool isEmpty() const;
+    int getSize() const;
 };
 
 class Queue
 {
 private:
-    MinHeap red, yellow, green;
-    Statistics stats;
+    MinHeap<Patient, Date> red, yellow, green;
 
 public:
     Queue();
-    void insert(int grauUrgencia, Pacient* paciente);
-    Pacient* getMin();
+    void insert(Patient* patient, Date QueueDate);
+    Patient* extractMin();
+    Patient* viewMin();
     bool isEmpty() const;
-    double getAverageWaitingTime() const;
-    double getAverageServiceTime() const;
 };
 
-template <typename T>
-class SequentialList 
-{
+class FIFO {
 private:
-    T* elements;    ///< Pointer to the array of elements
-    int* indices;   ///< Pointer to the array of indices
-    int size;       ///< Current size of the list
-    int capacity;   ///< Maximum capacity of the list
-    int id;         ///< ID for memory tracking
+    struct Node {
+        Patient* patient;
+        Node* next;
+        Node(Patient* p) : patient(p), next(nullptr) {}
+    };
+    Node* front;
+    Node* rear;
+    int size;
 
 public:
-
-    SequentialList(int n);
-    ~SequentialList();
-    void insert(const T& value);
-    T& operator[](int index);
-
+    FIFO();
+    ~FIFO();
+    void insert(Patient*);
+    Patient* extractMin();
+    Patient* viewMin() const;
+    bool isEmpty() const;
+    int getSize() const;
 };
+
+class PriorityQueue {
+private:
+    FIFO red, yellow, green;
+
+public:
+    PriorityQueue();
+    void insert(Patient* patient, Date QueueDate);
+    Patient* extractMin();
+    Patient* viewMin();
+    bool isEmpty() const;
+};
+
 #endif // STRUCT_HPP

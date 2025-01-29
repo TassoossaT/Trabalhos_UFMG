@@ -1,0 +1,39 @@
+ consume_resources: 33619
+Time factorial
+0 Recursive: 0 Iterative: 0
+100 Recursive: 1 Iterative: 0
+200 Recursive: 14 Iterative: 0
+300 Recursive: 20 Iterative: 0
+400 Recursive: 10 Iterative: 1
+500 Recursive: 7 Iterative: 1
+600 Recursive: 6 Iterative: 1
+700 Recursive: 18 Iterative: 1
+800 Recursive: 18 Iterative: 2
+900 Recursive: 22 Iterative: 2
+Time fibonacci
+1 Recursive: 0 Iterative: 0
+3 Recursive: 0 Iterative: 0
+5 Recursive: 0 Iterative: 0
+7 Recursive: 0 Iterative: 0
+9 Recursive: 0 Iterative: 0
+11 Recursive: 1 Iterative: 0
+13 Recursive: 2 Iterative: 0
+15 Recursive: 6 Iterative: 0
+17 Recursive: 15 Iterative: 0
+19 Recursive: 42 Iterative: 0
+21 Recursive: 120 Iterative: 0
+23 Recursive: 259 Iterative: 0
+25 Recursive: 847 Iterative: 0
+27 Recursive: 1934 Iterative: 0
+29 Recursive: 5163 Iterative: 0
+31 Recursive: 13949 Iterative: 0
+33 Recursive: 36879 Iterative: 0
+35 Recursive: 81455 Iterative: 0
+37 Recursive: 169009 Iterative: 0
+39 Recursive: 436117 Iterative: 0
+41 Recursive: 1169469 Iterative: 0
+43 Recursive: 3122652 Iterative: 0
+45 Recursive: 8442279 Iterative: 0
+47 Recursive: 21132320 Iterative: 0
+49 Recursive: 54588574 Iterative: 0
+51 Recursive: 143689713 Iterative: 0
