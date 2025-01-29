@@ -2,26 +2,26 @@ import json
 
 class Data:
     def __init__(self):
-        self.demand_file = 'dados_json/bairro_demanda_set.json'
+        self.demand_file = 'P.O Saude/dados_json/bairro_demanda_set.json'
         self.level_files = {
-            1: 'dados_json/EL_1.json',
-            2: 'dados_json/EL_2.json',
-            3: 'dados_json/EL_3.json'
+            1: 'P.O Saude/dados_json/EL_1.json',
+            2: 'P.O Saude/dados_json/EL_2.json',
+            3: 'P.O Saude/dados_json/EL_3.json'
         }
         self.equipe_files = {
-            1: 'dados_json/Equipe_1.json',
-            2: 'dados_json/Equipe_2.json',
-            3: 'dados_json/Equipe_3.json'
+            1: 'P.O Saude/dados_json/Equipe_1.json',
+            2: 'P.O Saude/dados_json/Equipe_2.json',
+            3: 'P.O Saude/dados_json/Equipe_3.json'
         }
         self.cnes_files = {
-            1: 'dados_json/CNES_1.json',
-            2: 'dados_json/CNES_2.json',
-            3: 'dados_json/CNES_3.json'
+            1: 'P.O Saude/dados_json/CNES_1.json',
+            2: 'P.O Saude/dados_json/CNES_2.json',
+            3: 'P.O Saude/dados_json/CNES_3.json'
         }
         self.distance_files = {
-            1: 'dados_json/distance_matrix_1.json',
-            2: 'dados_json/distance_matrix_2.json',
-            3: 'dados_json/distance_matrix_3.json'
+            1: 'P.O Saude/dados_json/distance_matrix_1.json',
+            2: 'P.O Saude/dados_json/distance_matrix_2.json',
+            3: 'P.O Saude/dados_json/distance_matrix_3.json'
         }
 
     def load_json(self, file_path):
@@ -29,19 +29,20 @@ class Data:
             return json.load(file)
 
     def get_data(self):
-        demand_data = self.load_json(self.demand_file)['features']
+        demand_data = self.load_json(self.demand_file)
         level_data = {level: self.load_json(file) for level, file in self.level_files.items()}
         equipe_data = {level: self.load_json(file) for level, file in self.equipe_files.items()}
         cnes_data = {level: self.load_json(file) for level, file in self.cnes_files.items()}
         distance_data = {level: self.load_json(file) for level, file in self.distance_files.items()}
 
-        I = [d['properties']['ID_BAIRRO'] for d in demand_data]
+        I = [d['NOME'] for d in demand_data]
         K = [1, 2, 3]
         P = [1, 2]
+
         E = {level: list(equipe["descricao_cbo"]) for level, equipe in equipe_data.items()}                   
         EL = {level: [el['name'] for el in data] for level, data in level_data.items()}
         CL = {level: [el['name'] for el in data] for level, data in level_data.items()}
-        L = {level: EL[level] + CL[level] for level in EL}
+        L = {level: EL[level]  for level in EL}#+ CL[level]
 
         CE = {level: {e: 100000 for e in equipe['descricao_cbo']} for level, equipe in equipe_data.items()}
         
@@ -61,8 +62,8 @@ class Data:
         FC2 = {el['name']: 200 for el in level_data[2]}
         FC3 = {el['name']: 300 for el in level_data[3]}
 
-        W = {(d['properties']['ID_BAIRRO'], 1): d['properties']['pessoas'] * 0.6 for d in demand_data}
-        W.update({(d['properties']['ID_BAIRRO'], 2): d['properties']['pessoas'] * 0.4 for d in demand_data})
+        W = {(d['NOME'], 1): d['QTDPESSOAS'] * 0.6 for d in demand_data}
+        W.update({(d['NOME'], 2): d['QTDPESSOAS'] * 0.4 for d in demand_data})
 
         MS1 = {e: 0.02 for e in E[1]}
         MS2 = {e: 0.01 for e in E[2]}
@@ -179,4 +180,4 @@ class Data_test:
             'O2': {i: 0.7 for i in range(1, 9)}
         }
 
-# Data().get_data()
+Data().get_data()

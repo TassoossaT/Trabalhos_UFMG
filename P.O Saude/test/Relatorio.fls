@@ -1,6 +1,6 @@
-PWD c:\Users\tastc\OneDrive\Área de Trabalho\Tps_linear\P.O Saude\test
+PWD c:\Users\tastc\OneDrive\Área de Trabalho\Trabalhos_UFMG\P.O Saude\test
 INPUT C:\Users\tastc\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
-INPUT c:\Users\tastc\OneDrive\Área de Trabalho\Tps_linear\P.O Saude\test\Relatorio.tex
+INPUT c:\Users\tastc\OneDrive\Área de Trabalho\Trabalhos_UFMG\P.O Saude\test\Relatorio.tex
 OUTPUT Relatorio.log
 INPUT C:\Users\tastc\AppData\Local\Programs\MiKTeX\tex\latex\base\article.cls
 INPUT C:\Users\tastc\AppData\Local\Programs\MiKTeX\tex\latex\base\article.cls

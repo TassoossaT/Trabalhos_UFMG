@@ -1,14 +1,15 @@
 import json
 from geopy.distance import geodesic
-from shapely.geometry import shape
+# from shapely.geometry import shape
 import pandas as pd
+from shapely.wkt import loads
 
 def load_json(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         return json.load(file)
 
 def get_centroid(geometry):
-    geom = shape(geometry)
+    geom = loads(geometry)
     centroid = geom.centroid
     return centroid.y, centroid.x
 
@@ -18,8 +19,8 @@ def calculate_distance(demand_coords, supply_coords):
 def calculate_distance_matrix_demand_to_level(demand_data, level_data):
     matrix = {}
     for demand in demand_data:
-        demand_id = demand['properties']['ID_BAIRRO']
-        demand_coords = get_centroid(demand['geometry'])
+        demand_id = demand['NOME']#demand['ID_BAIRRO']
+        demand_coords = get_centroid(demand['GEOMETRIA'])
         matrix[demand_id] = {}
         for supply in level_data:
             supply_id = supply['name']
@@ -46,12 +47,12 @@ def save_json(data, file_path):
         json.dump(data, file, ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
-    demand_file = 'dados_json/bairro_demanda_set.json'  # Replace with your demand JSON file path
-    level_1_file = 'dados_json/EL_1.json'  # Replace with your level 1 JSON file path
-    level_2_file = 'dados_json/EL_2.json'  # Replace with your level 2 JSON file path
-    level_3_file = 'dados_json/EL_3.json'  # Replace with your level 3 JSON file path
+    demand_file = "P.O Saude/dados_json/bairro_demanda_set.json"  # Replace with your demand JSON file path
+    level_1_file = "P.O Saude/dados_json/EL_1.json"  # Replace with your level 1 JSON file path
+    level_2_file = "P.O Saude/dados_json/EL_2.json"  # Replace with your level 2 JSON file path
+    level_3_file = "P.O Saude/dados_json/EL_3.json"  # Replace with your level 3 JSON file path
 
-    demand_data = load_json(demand_file)['features']
+    demand_data = load_json(demand_file)
     level_1_data = load_json(level_1_file)
     level_2_data = load_json(level_2_file)
     level_3_data = load_json(level_3_file)
@@ -63,6 +64,6 @@ if __name__ == "__main__":
     print("Calculando matriz de distância para nível 2 e nível 3")
     distance_matrix_3 = calculate_distance_matrix_level_to_level(level_2_data, level_3_data)
 
-    save_json(distance_matrix_1, 'dados_json/distance_matrix_1.json')
-    save_json(distance_matrix_2, 'dados_json/distance_matrix_2.json')
-    save_json(distance_matrix_3, 'dados_json/distance_matrix_3.json')
+    save_json(distance_matrix_1, 'P.O Saude/dados_json/distance_matrix_1.json')
+    save_json(distance_matrix_2, 'P.O Saude/dados_json/distance_matrix_2.json')
+    save_json(distance_matrix_3, 'P.O Saude/dados_json/distance_matrix_3.json')

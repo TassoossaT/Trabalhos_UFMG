@@ -125,10 +125,10 @@ class Hierarchical:
                 model += lpSum(u1[p, i, j] * MS1[e] for p in P for i in I) - l1[e,j ] == CNES1[j][e]
         for j2 in EL[2]:
             for e in E[2]:
-                model += lpSum(u2[j, j2] * MS2[e] for j in L[1]) - l2[e,j2] == CNES2[ j2][e]
+                model += lpSum(u2[j, j2] * MS2[e] for j in L[1]) - l2[e,j2] == CNES2[j2][e]
         for j3 in EL[3]:
             for e in E[3]:
-                model += lpSum(u3[j2, j3] * MS3[e] for j2 in L[2]) - l3[e,j3] == CNES3[ j3][e]
+                model += lpSum(u3[j2, j3] * MS3[e] for j2 in L[2]) - l3[e,j3] == CNES3[j3][e]
         print("Total time: "  + str(time.time() - start))
         start = time.time()
         print("Optimize new location health care team")
@@ -267,7 +267,7 @@ class Hierarchical:
                 print(f"L[{j} ]")
                 for e in E[1]:
                     flow = sum((self.u1[p, i, j].value() or 0) * MS1[e] for p in P for i in I)
-                    cnes = CNES1[e, j]
+                    cnes = CNES1[j][e]
                     print(f"[{e}]: {cnes:.2f} {flow:.2f} {flow - cnes:.2f}")
             print("==================================")
             print("SHC-Team CNES Flow Lack/Excess")
@@ -276,7 +276,7 @@ class Hierarchical:
                 print(f"L[{j2} ]")
                 for e in E[2]:
                     flow = sum((self.u2[j, j2].value() or 0) * MS2[e] for j in L[1])
-                    cnes = CNES2[e, j2]
+                    cnes = CNES2[j2][e]
                     print(f"[{e}]: {cnes:.2f} {flow:.2f} {flow - cnes:.2f}")
             print("==================================")
             print("THC-Team CNES Flow Lack/Excess")
@@ -285,7 +285,7 @@ class Hierarchical:
                 print(f"L[{j3} ]")
                 for e in E[3]:
                     flow = sum((self.u3[j2, j3].value() or 0) * MS3[e] for j2 in L[2])
-                    cnes = CNES3[e, j3]
+                    cnes = CNES3[j3][e]
                     print(f"[{e}]: {cnes:.2f} {flow:.2f} {flow - cnes:.2f}")
             print("==================================")
             print("PHC [p]: Capty Met Use(%)")
