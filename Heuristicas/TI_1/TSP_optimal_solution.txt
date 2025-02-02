@@ -1,0 +1,2 @@
+Solution:
+Cbc0010I After 122300 nodes, 9984 on tree, 10628 best solution, best possible 10391.667 (33529.61 seconds)

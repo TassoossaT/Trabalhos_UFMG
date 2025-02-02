@@ -1,0 +1,20 @@
+Solution:
+File: att48.tsp | Total distance: 11393 | Elapsed time: 0.46924567222595215 seconds
+File: berlin52.tsp | Total distance: 8568 | Elapsed time: 0.548041820526123 seconds
+File: kroA100.tsp | Total distance: 22382 | Elapsed time: 8.584576845169067 seconds
+File: kroA150.tsp | Total distance: 27961 | Elapsed time: 49.951101303100586 seconds
+File: kroB100.tsp | Total distance: 22855 | Elapsed time: 8.500762939453125 seconds
+File: kroB150.tsp | Total distance: 27634 | Elapsed time: 53.37731218338013 seconds
+File: kroB200.tsp | Total distance: 32004 | Elapsed time: 170.22920322418213 seconds
+File: kroC100.tsp | Total distance: 21213 | Elapsed time: 11.293274879455566 seconds
+File: kroD100.tsp | Total distance: 22646 | Elapsed time: 8.218165636062622 seconds
+File: kroE100.tsp | Total distance: 23017 | Elapsed time: 9.584747552871704 seconds
+File: lin105.tsp | Total distance: 14941 | Elapsed time: 6.191930532455444 seconds
+File: pr76.tsp | Total distance: 113930 | Elapsed time: 1.2287342548370361 seconds
+File: pr107.tsp | Total distance: 44688 | Elapsed time: 6.048442602157593 seconds
+File: pr124.tsp | Total distance: 62471 | Elapsed time: 5.769916534423828 seconds
+File: pr136.tsp | Total distance: 100072 | Elapsed time: 22.42107367515564 seconds
+File: pr144.tsp | Total distance: 60958 | Elapsed time: 12.50690245628357 seconds
+File: pr152.tsp | Total distance: 76928 | Elapsed time: 29.27806329727173 seconds
+File: rat99.tsp | Total distance: 1237 | Elapsed time: 2.901466131210327 seconds
+File: st70.tsp | Total distance: 691 | Elapsed time: 1.780625581741333 seconds
