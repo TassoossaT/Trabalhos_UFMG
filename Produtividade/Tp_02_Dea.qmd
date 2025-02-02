@@ -1,0 +1,279 @@
+---
+title: "TP 2 Aalises Modelos BCC, IRS, DRS"
+author: Tasso Augusto Tomaz Pimenta 2021072198
+format: 
+        pdf:
+                toc: true
+                lot: true
+echo: false
+---
+### Definição do Tp
+``` 
+Rode os modelos BCC, IRS, DRS em ambas orientações e analise os resultados. 
+Identifique os itens abaixo:
+• a eficiência (pura,total e escala) das DMUs
+• identifique em que escala as DMUs operam para cada modelo
+• histograma das eficiências
+• identifique as DMUs dentro das eficiências do histograma
+• os benchmarks para cada DMU
+• os pesos relativos dos inputs e outputs
+• apresente as projeções e metas para os inputs e outputs
+• calcule o FDH para os dois tipos de abordagem (provisão e distribuição)
+```
+# Conclusão da analise:
+``` 
+Primeiramente, eu não rodei 100% de todos os testes possiveis, são muitos modelos 
+e no geral são similares então tentei separar os mais interessate para uma analise
+com a adição de algumas condições para o retorno de escala, as eficiencias mudaram
+fora que os pesos e as dmus de referencias ficaram mais dispersos do que no ccr
+porém ao colocar tudo junto num mesmo grafico é possivel analisar que os modelos 
+indicam uma relação, com isso eu consigo indicar o retorno de escala de cada dmu, 
+como crescente e decrescente e as constantes. Eu tentei fazer uma analise na 
+classificação dasa eficiencias, porém todas as eficientes são classificadas como
+fortementes e nenhuma aparenta ser fracamente eficiente, eu não sei dizer se isso
+é uma caracteristica do modelo ou se meu codigo está errado em algum ponto.
+Ao analisar as metas paras as dmus eu percebi que as metas elas variam de acordo
+com o retorno de escala de cada dmu, ou seja elas são iguais quando as eficiencias
+são iguais, e quando as eficiencias são diferentes as metas também são diferentes.
+
+Agora para o FDH eu encontrei valores muitos estranhos, as maiorias das dmus são
+referencias para elas mesmo, e só piora para a data de Provisão, é dito que gera 
+um grande numeros de empates mas quase todas empataram.
+Eu tentei rodar de todas as formas possiveis, para todos os tipos de retornos 
+porém todas deram resultados iguais basicamente(Eu não sei dizer se o problema
+ta no meu codigo, mas se tiver tudo o que fiz ta errado)
+
+``` 
+
+
+# Dados usados são:
+```{python}
+from dea_compacto_Tasso import *
+# dados de Provisão
+data_prov.print()
+# dados de Distribuição
+data_dist.print()
+```
+## Modelo BCC:
+### Com os pesos e benchmarks
+```{python}
+bcc_multiplicadores_input = Model_frabric_Weight(normatize_data(data_dist),scale="Variavel")
+bcc_multiplicadores_output = Model_frabric_Weight(normatize_data(data_dist),mode="Output",scale="Variavel")
+bcc_envelope_input = Model_frabric_Envelope(normatize_data(data_dist),scale="Variavel",slack=True)
+bcc_envelope_output = Model_frabric_Envelope(normatize_data(data_dist),mode="Output",scale="Variavel",slack=True)
+bcc_multiplicadores_input.model()
+bcc_multiplicadores_output.model()
+bcc_envelope_input.model()
+bcc_envelope_output.model()
+bcc_envelope_input.print_solution(no_data=True)
+bcc_envelope_output.print_solution(no_data=True)
+```
+```{python}
+bcc_multiplicadores_input.print_solution(no_data=True)
+bcc_multiplicadores_output.print_solution(no_data=True)
+```
+### Modelo com data de Provisão
+```{python}
+p_bcc_multiplicadores_input = Model_frabric_Weight(normatize_data(data_prov),scale="Variavel")
+p_bcc_multiplicadores_output = Model_frabric_Weight(normatize_data(data_prov),mode="Output",scale="Variavel")
+p_bcc_envelope_input = Model_frabric_Envelope(normatize_data(data_prov),scale="Variavel",slack=True)
+p_bcc_envelope_output = Model_frabric_Envelope(normatize_data(data_prov),mode="Output",scale="Variavel",slack=True)
+p_bcc_multiplicadores_input.model()
+p_bcc_multiplicadores_output.model()
+p_bcc_envelope_input.model()
+p_bcc_envelope_output.model()
+p_bcc_envelope_input.print_solution(no_data=True)
+# Output
+p_bcc_envelope_output.print_solution(no_data=True)
+```
+```{python}
+p_bcc_multiplicadores_input.print_solution(no_data=True)
+#p_bcc_multiplicadores_output.print_solution(no_data=True)
+p_drs_multiplicadores_input = Model_frabric_Weight(normatize_data(data_dist),scale="Negative")
+p_drs_multiplicadores_input.model()
+p_irs_multiplicadores_input = Model_frabric_Weight(normatize_data(data_dist),scale="Positive")
+p_irs_multiplicadores_input.model()
+```
+## Modelo DRS:
+### Com os pesos e benchmarks
+```{python}
+drs_multiplicadores_input = Model_frabric_Weight(normatize_data(data_dist),scale="Negative")
+drs_multiplicadores_output = Model_frabric_Weight(normatize_data(data_dist),mode="Output",scale="Negative")
+drs_envelope_input = Model_frabric_Envelope(normatize_data(data_dist),scale="Negative",slack=True)
+drs_envelope_output = Model_frabric_Envelope(normatize_data(data_dist),mode="Output",scale="Negative",slack=True)
+drs_multiplicadores_input.model()
+drs_multiplicadores_output.model()
+drs_envelope_input.model()
+drs_envelope_output.model()
+drs_envelope_input.print_solution(no_data=True)
+drs_envelope_output.print_solution(no_data=True)
+```
+```{python}
+drs_multiplicadores_input.print_solution(no_data=True)
+drs_multiplicadores_output.print_solution(no_data=True)
+```
+## Modelo IRS:
+### Com os pesos e benchmarks
+```{python}
+#|fontsize: 12px
+irs_multiplicadores_input = Model_frabric_Weight(normatize_data(data_dist),scale="Positive")
+irs_multiplicadores_output = Model_frabric_Weight(normatize_data(data_dist),mode="Output",scale="Positive")
+irs_envelope_input = Model_frabric_Envelope(normatize_data(data_dist),scale="Positive",slack=True)
+irs_envelope_output = Model_frabric_Envelope(normatize_data(data_dist),mode="Output",scale="Positive",slack=True)
+irs_multiplicadores_input.model()
+irs_multiplicadores_output.model()
+irs_envelope_input.model()
+irs_envelope_output.model()
+irs_envelope_input.print_solution(no_data=True)
+irs_envelope_output.print_solution(no_data=True)
+```
+```{python}
+irs_multiplicadores_input.print_solution(no_data=True)
+irs_multiplicadores_output.print_solution(no_data=True)
+```
+# Grafico Eficiencia x DMU: Dados de Provisão
+```{python}
+#| fig-cap: "Ef x DMU Provisão: Verde: DRS, Vermelho: BCC, Azul: IRS"
+
+import matplotlib.pyplot as plt
+solution = p_bcc_multiplicadores_input.get_solution()
+dmus = [dmu['dmu_name'] for dmu in solution.values()]
+eficiencias = [dmu['efficiency'] for dmu in solution.values()]
+plt.scatter(dmus, eficiencias, c='red',marker='v',label='variavel')
+solution = p_drs_multiplicadores_input.get_solution()
+eficiencias = [dmu['efficiency'] for dmu in solution.values()]
+plt.scatter(dmus, eficiencias,c='g',marker='^',label='Negativo')
+solution = p_irs_multiplicadores_input.get_solution()
+eficiencias = [dmu['efficiency'] for dmu in solution.values()]
+plt.scatter(dmus, eficiencias,c='b',marker='<',label='Positivo')
+plt.xticks(rotation=90)
+plt.xlabel('DMU')
+plt.ylabel('Eficiência')
+plt.title('Gráfico de Eficiência por DMU Provisão')
+plt.legend()
+plt.show()
+```
+#  Grafico Eficiencia x DMU : Dados de Distribuição
+As eficiencias de cada modelos no mesmo grafico para comparação de classificação de cada
+```{python}
+#| fig-cap: "Ef x DMU Distribuição: Verde: DRS, Vermelho: BCC, Azul: IRS"
+
+import matplotlib.pyplot as plt
+solution = bcc_multiplicadores_input.get_solution()
+dmus = [dmu['dmu_name'] for dmu in solution.values()]
+
+eficiencias = [dmu['efficiency'] for dmu in solution.values()]
+plt.scatter(dmus, eficiencias, c='red',marker='v',label='variavel')
+
+solution = drs_multiplicadores_input.get_solution()
+eficiencias = [dmu['efficiency'] for dmu in solution.values()]
+plt.scatter(dmus, eficiencias,c='g',marker='^',label='Negativo')
+solution = irs_multiplicadores_input.get_solution()
+eficiencias = [dmu['efficiency'] for dmu in solution.values()]
+plt.scatter(dmus, eficiencias,c='b',marker='<',label='Positivo')
+
+plt.xticks(rotation=90)
+plt.xlabel('DMU')
+plt.ylabel('Eficiência')
+plt.title('Gráfico de Eficiência por DMU Distribuição')
+plt.legend()
+plt.show()
+```
+
+## Classificação das Eficiencias Distribuição
+## BCC
+```{python}
+Classificador_Eficiencia(solution = bcc_envelope_input.get_solution()).print()
+```
+## DRS
+```{python}
+Classificador_Eficiencia(solution = drs_envelope_input.get_solution()).print()
+```
+## IRS
+```{python}
+Classificador_Eficiencia(solution = irs_envelope_input.get_solution()).print()
+```
+# Retorno de Escala
+```{python}
+ccr_multiplicadores_input = Model_frabric_Weight(normatize_data(data_dist))
+ccr_multiplicadores_input.model()
+ccr = ccr_multiplicadores_input.get_solution()
+bcc = bcc_multiplicadores_input.get_solution()
+drs = drs_multiplicadores_input.get_solution()
+irs = irs_multiplicadores_input.get_solution()
+RetornoEscala(ccr,bcc,drs,irs).print()
+```
+# Metas
+## BCC
+```{python}
+bcc_envelope_input.print_goal()
+bcc_envelope_output.print_goal()
+```
+## DRS
+```{python}
+drs_envelope_input.print_goal()
+drs_envelope_output.print_goal()
+```
+## IRS
+```{python}
+irs_envelope_input.print_goal()
+irs_envelope_output.print_goal()
+```
+# Modelo FDH 
+## Para dados de Provisão
+### Retorno de Escala Constante
+```{python}
+fdh_input = Model_frabric_Envelope(normatize_data(data_prov),var='B')
+fdh_output = Model_frabric_Envelope(normatize_data(data_prov),var='B',mode = "Output")
+fdh_input.model() 
+fdh_output.model()
+fdh_input.print_solution(no_data=True)
+```
+```{python}
+fdh_output.print_solution(no_data=True)
+```
+## Para dados de Distribuição
+### Retorno de Escala Constantes
+```{python}
+fdh_input = Model_frabric_Envelope(data_dist,var='B',scale="Positive")
+fdh_output = Model_frabric_Envelope(data_dist,var='B',mode = "Output",scale="Positive")
+fdh_input.model()
+fdh_output.model()
+fdh_input.print_solution(no_data=True)
+```
+```{python}
+fdh_output.print_solution(no_data=True)
+```
+### Retorno de Escala Positivo
+```{python}
+fdh_input = Model_frabric_Envelope(data_dist,var='B',scale="Positive")
+fdh_output = Model_frabric_Envelope(data_dist,var='B',mode = "Output",scale="Positive")
+fdh_input.model()
+fdh_output.model()
+fdh_input.print_solution(no_data=True)
+```
+```{python}
+fdh_output.print_solution(no_data=True)
+```
+### Retorno de Escala Negativo
+```{python}
+fdh_input = Model_frabric_Envelope(data_dist,var='B',scale="Negative")
+fdh_output = Model_frabric_Envelope(data_dist,var='B',mode = "Output",scale="Negative")
+fdh_input.model()
+fdh_output.model()
+fdh_input.print_solution(no_data=True)
+```
+```{python}
+fdh_output.print_solution(no_data=True)
+```
+### Retorno de Escala variavel
+```{python}
+fdh_input = Model_frabric_Envelope(data_dist,var='B',scale="Variavel")
+fdh_output = Model_frabric_Envelope(data_dist,var='B',mode = "Output",scale="Variavel")
+fdh_input.model()
+fdh_output.model()
+fdh_input.print_solution(no_data=True)
+```
+```{python}
+fdh_output.print_solution(no_data=True)
+```

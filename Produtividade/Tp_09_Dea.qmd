@@ -1,0 +1,63 @@
+---
+title: "TP 9 índice de Malmquist ao longo dos anos"
+author: Tasso Augusto Tomaz Pimenta 2021072198
+format: 
+        pdf:
+                toc: true
+                lot: true
+echo: false
+---
+# Definição do Tp
+```
+Identificar quais DMUs tiveram ganhos de produtividade, mudança de eficiência e técnica, 
+ao longo dosanos.
+Para executar o arquivo ndea.py digite no seu terminal:
+python deamalquist.py malquist-data.csv
+Note que ele retorna os valores das eficiências para tt, tt + 1, t + 1t, e t + 1t + 1. 
+O índice de Malmquist deve ser calculado assim como os ganhos produtividade, 
+mudança de eficiência e técnica para cada DMU ao longo dos anos.
+```
+```{python}
+from deamalmquist import *
+```
+```{python}
+import pandas as pd
+
+dt = DEAData(file_name='malmquist-data.csv')
+malquist = []
+
+mf = []
+at = []
+for p in dt.P:
+    if p < dt.np - 1:
+        Xcur,Ycur,Xnext,Ynext,names=dt.X[p],dt.Y[p],dt.X[p+1],dt.Y[p+1],dt.names
+        panel = CCRIOMWModel(p,Xcur,Ycur,Xnext,Ynext,names)
+        panel.run(data_type = 'current')
+        panel.run(data_type = 'next')
+        panel.run_cross_periods(cross_type = 'cur2next')
+        panel.run_cross_periods(cross_type = 'next2cur')
+        #panel.print_solution()
+        malquist.append(panel.malquist())
+        at.append(panel.AT())
+        mf.append(panel.MF())
+```
+# Malquist
+```{python}
+table = pd.concat(malquist,axis=1)
+table.columns = [f"{p} - {p+1}" for p in dt.P if p < dt.np -1]
+table
+```
+# AT
+```{python}
+
+table = pd.concat(at,axis=1)
+table.columns = [f"{p} - {p+1}" for p in dt.P if p < dt.np -1]
+table
+```
+# MF
+```{python}
+
+table = pd.concat(mf,axis=1)
+table.columns = [f"{p} - {p+1}" for p in dt.P if p < dt.np -1]
+table
+```

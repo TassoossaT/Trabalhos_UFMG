@@ -1,0 +1,142 @@
+---
+title: "TP 10 Network Dea"
+author: Tasso Augusto Tomaz Pimenta 2021072198
+format: 
+        pdf:
+                toc: true
+                lot: true
+echo: false
+---
+# Definição do Tp
+```
+Vamos comparar as efficiências dos modelos CCR com o do DEA em rede de dois estágios:
+• calcule a eficiência de cada estágio separadamente, estágio 1 com ((X1,X2),Y1) 
+e estágio 2 com ((XX1,XX2,Y1),(YY1,YY2)), usando o modelo CCR. 
+Faça o produto deles para calcular a eficiência global, no qual 
+((entradas),(saídas)).
+• calcule a eficiência da DMU considerando X1,X2, XX1,
+e XX2 como entradas e YY1 e YY2 como saídas.
+• calcule a média ponderada das eficiências de cada estágio e global 
+usando o modelo de média ponderada obtida via o arquivo ndea.py.
+• calcule a eficiência global centralizada usando o modelo 
+centralizado obtida via o arquivo ndea.py.
+• compare as soluções e explique os resultados. O que podemos obervar?
+Analise os resultados obtidos detalhadamente.
+
+```
+
+```{python}
+from ndea import *
+import numpy as np
+from prettytable import PrettyTable
+from dea_compacto_Tasso import DEAData as DEA, Model_frabric_Weight
+```
+```{python}
+dt = DEAData('labx.csv')
+#dt.to_latex()
+
+```
+```{python}
+ts = NDEATwoStage(dt)
+ts.run()
+ts.print_solution()
+```
+```{python}
+avg = WeightedAverageNDEA(dt)
+avg.run()
+avg.print_solution()
+```
+# data com x e y
+```{python}
+
+data1 = DEA(
+        dmu_names       = dt.names,
+        input_names     = [f'i{i}' for i in range(len(dt.X[0]))],
+        output_names    = [f'o{j}' for j in range(len(dt.Y[0]))],
+        input_values    = dt.X,
+        output_values   = dt.Y
+        )
+data1.print(codigo=False)
+
+```
+# data com xx e yy
+
+```{python}
+input_values = np.concatenate((dt.Y, dt.XX,), axis=1)
+
+data2 = DEA(
+        dmu_names       = dt.names,
+        input_names     = [f'i{i}' for i in range(len(input_values[0]))],
+        output_names    = [f'o{j}' for j in range(len(dt.YY[0]))],
+        input_values    = input_values,
+        output_values   = dt.YY
+        )
+data2.print(codigo=False)
+```
+```{python}
+x = Model_frabric_Weight(data1)
+x.model()
+xx = Model_frabric_Weight(data2)
+xx.model()
+```
+# eficiecias do x e y como input/output
+```{python}
+x.print_solution(only_ef=True)
+```
+# eficiecias do xx, y e yy como input/output
+
+```{python}
+xx.print_solution(only_ef=True)
+
+```
+# comparação com modelos no aarquivo ndea.py
+```{python}
+
+def print_efficiency_comparison(x, xx, ts, avg):
+        efficiency_values = {
+                'xx': xx.get_solution(),
+                'x': x.get_solution(),
+                'x*xx': {dmu: x.get_solution()[dmu]['efficiency'] * xx.get_solution()[dmu]['efficiency'] \
+                        for dmu in x.get_solution()},
+                'ts': ts.eff,
+                'Global': {dmu: avg.eff[dmu][0] for dmu in x.get_solution()}
+        }
+        tb = PrettyTable()
+        tb.field_names = ['DMU', 'x*xx','E1*E2_CME', 'x', 'E1_CME','E2_CME','xx - y', 'Global_W']
+        for dmu in efficiency_values['x'].keys():
+                tb.add_row([
+                        dmu,
+                        #dt.names[dmu],
+                        "{:.5}".format(efficiency_values['x*xx'][dmu]               ),
+                        "{:.5}".format(efficiency_values['ts'][dmu][0]),
+
+                        "{:.5}".format(efficiency_values['x'][dmu]['efficiency']    ),
+                        "{:.5}".format(efficiency_values['ts'][dmu][1]),
+
+                        "{:.5}".format(efficiency_values['xx'][dmu]['efficiency']   ),
+                        "{:.5}".format(efficiency_values['ts'][dmu][2]),
+                        "{:.5}".format(efficiency_values['Global'][dmu])
+                ])
+        return tb
+
+
+print_efficiency_comparison(x, xx, ts, avg)
+```
+
+# eficiecias do x, xx e yy como input/output
+```{python}
+input_values = np.concatenate((dt.X, dt.XX), axis=1)
+data4 = DEA(
+        dmu_names       = dt.names,
+        input_names     = [f'i{i}' for i in range(len(input_values[0]))],
+        output_names    = [f'o{j}' for j in range(len(dt.YY[0]))],
+        input_values    = input_values,
+        output_values   = dt.YY
+        )
+data4.print(codigo=False)
+```
+```{python}
+y = Model_frabric_Weight(data4)
+y.model()
+y.print_solution(only_ef=True)
+```

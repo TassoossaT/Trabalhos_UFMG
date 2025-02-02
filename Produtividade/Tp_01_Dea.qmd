@@ -1,0 +1,210 @@
+---
+title: "TP 1 Aalises Modelos CCR/CRS"
+author: Tasso Augusto Tomaz Pimenta 2021072198
+format: 
+        pdf:
+            toc: true
+            lot: True
+echo: false
+---
+# Definição do Tp
+```
+Rode os modelos CRS/CCR e analise os resultados. Identifique os itens abaixo:
+• a eficiência das DMUs
+• histograma das eficiências
+• identifique as DMUs dentro das eficiências do histograma
+• os benchmarks para cada DMU
+• os pesos relativos dos inputs e outputs
+• identifique as DMUs fortemente e fracamente eficientes
+• apresente as projeções e metas para os inputs e outputs
+```
+# Conclusão da analise:
+```
+Rodando os modelos para os dado de Distribuição:
+Multlipicadores foi encontrado os mesmos valores de eficiencia das DMUS
+porém a contribuição(pesos), mudam muito se voltado para os inputs e outputs, 
+outra coisa é que o segundo input e o primeiro output, tem uma importancia
+muito maior do que o resto para a Ef 
+No modelo de envelope foi também encontrado as dmus de referencia para as outras,
+no dados dede distribuição foram basicamente 8, 11 e 13 como refencia para as outras.
+Com isso foi analisadoas folgas e assim foi possivel ver que somente a 13 é 
+fortemente eficiente, e a 8 e 11 apresentam folgas. Também a projeção de metas, 
+no geral diminuir inputs, aumentar outputs, algumas vezes o contrario porém são 
+valores baixos, então não necesseariamente valem de algo.
+Para a data de provisão os resultados foram similares, mas os pesos estão mais 
+distribuidos,as dmus de referencias são 3, 13 e 16, e todas são fortemente eficientes, 
+eu fiz a analise sem levar em conta as folgas, a analise pelo llamda da o mesmo 
+resultado do que pelas folgas
+```
+## Os Dados usados são:
+```{python}
+#| tbl-cap: "dados de Provisão"
+
+from dea_compacto_Tasso import *
+# dados de Provisão
+data_prov.print()
+```
+```{python}
+#| tbl-cap: "dados de Distribuição"
+
+# dados de Distribuição
+data_dist.print()
+```
+# Rodando os modelos ccr para a Provisão voltados tanto para os inputs quanto para os outputs:
+
+## Pelos multiplicadores:
+```{python}
+ccr_multiplicadores_input = Model_frabric_Weight(normatize_data(data_dist))
+ccr_multiplicadores_output = Model_frabric_Weight(normatize_data(data_dist),mode="Output")
+ccr_multiplicadores_input.model()
+ccr_multiplicadores_output.model()
+```
+```{python}
+#| tbl-cap: "CCR multiplicadores input"
+
+ccr_multiplicadores_input.print_solution(no_data=True)
+```
+```{python}
+#| tbl-cap: "CCR multiplicadores output"
+
+ccr_multiplicadores_output.print_solution(no_data=True)
+```
+## Por Envelopes:
+```{python}
+#| tbl-cap: "CCR envelope Input"
+
+ccr_envelope_input = Model_frabric_Envelope(normatize_data(data_dist))
+ccr_envelope_output = Model_frabric_Envelope(normatize_data(data_dist),mode="Output")
+ccr_envelope_input.model()
+ccr_envelope_output.model()
+## Voltado para Outpus:
+ccr_envelope_input.print_solution(no_data=True)
+```
+```{python}
+#| tbl-cap: "CCR envelope Output"
+
+ccr_envelope_output.print_solution(no_data=True)
+```
+# Eficiencias das DMUS e a classificação:
+## Histograma
+Histograma das eficiencias
+```{python}
+import matplotlib.pyplot as plt
+solution = ccr_multiplicadores_input.get_solution()
+eficiencias = [dmu['efficiency'] for dmu in solution.values()]
+b = 10
+dmus = data_dist.dmu_names
+ran = (max(eficiencias)-min(eficiencias))/b
+
+plt.hist(eficiencias, bins=b,edgecolor='black')
+plt.xlabel('Eficiência')
+plt.title('Histograma de Eficiências')
+plt.show()
+```
+## Eficiencia de cada dmu
+Demostração de cada grupo do histograma
+```{python}
+plt.scatter(dmus, eficiencias,c='b')
+eficiencias = [dmu['efficiency'] for dmu in ccr_envelope_input.get_solution().values()]
+plt.scatter(dmus, eficiencias,c='r')
+plt.xticks(rotation=90)
+for i in range(b):
+    plt.axhline(y=ran*i+min(eficiencias), color='y', linestyle='--')
+plt.axhline(y=min(eficiencias), color='y', linestyle='--')
+plt.axhline(y=max(eficiencias), color='r', linestyle='--')
+plt.xlabel('DMU')
+plt.ylabel('Eficiência')
+plt.title('Gráfico de Eficiência por DMU')
+plt.show()
+```
+## Classificação
+Classificação se as dmus são realmente eficiencientes pela adicão das folgas
+```{python}
+#| tbl-cap: "Classificação das DMU"
+
+Classificador_Eficiencia(data_dist).print()
+```
+# Projeções e Metas
+## Voltado ara os Inputs:
+```{python}
+#| tbl-cap: "Metas CCR input"
+
+ccr_envelope_input.print_goal()
+```
+## Voltado para os Outputs
+```{python}
+#| tbl-cap: "Metas CCR output"
+
+ccr_envelope_output.print_goal()
+```
+# Dados de Provisão
+## por pesos
+```{python}
+ccr_multiplicadores_input = Model_frabric_Weight(normatize_data(data_prov))
+ccr_multiplicadores_input.model()
+```
+```{python}
+#| tbl-cap: "CCR multiplicadores input provisão"
+
+ccr_multiplicadores_input.print_solution(no_data=True)
+```
+## Por Envelopes:
+```{python}
+#| tbl-cap: "CCR envelope Input provisão"
+
+ccr_envelope_input = Model_frabric_Envelope(normatize_data(data_prov))
+ccr_envelope_input.model()
+
+ccr_envelope_input.print_solution(no_data=True)
+```
+# Eficiencias das DMUS e a classificação:
+## Histograma
+Histograma das eficiencias
+```{python}
+solution = ccr_multiplicadores_input.get_solution()
+eficiencias = [dmu['efficiency'] for dmu in solution.values()]
+b = 10
+dmus = data_dist.dmu_names
+ran = (max(eficiencias)-min(eficiencias))/b
+
+plt.hist(eficiencias, bins=b,edgecolor='black')
+plt.xlabel('Eficiência')
+plt.title('Histograma de Eficiências provisão')
+plt.show()
+```
+## Eficiencia de cada dmu
+Demostração de cada grupo do histograma
+```{python}
+plt.scatter(dmus, eficiencias,c='b')
+eficiencias = [dmu['efficiency'] for dmu in ccr_envelope_input.get_solution().values()]
+plt.scatter(dmus, eficiencias,c='r')
+plt.xticks(rotation=90)
+for i in range(b):
+    plt.axhline(y=ran*i+min(eficiencias), color='y', linestyle='--')
+plt.axhline(y=min(eficiencias), color='y', linestyle='--')
+plt.axhline(y=max(eficiencias), color='r', linestyle='--')
+plt.xlabel('DMU')
+plt.ylabel('Eficiência')
+plt.title('Gráfico de Eficiência por DMU provisão')
+plt.show()
+```
+## Classificação
+Classificação se as dmus são realmente eficiencientes pela adicão das folgas
+```{python}
+#| tbl-cap: "Classificação das DMU"
+
+Classificador_Eficiencia(data_prov).print()
+```
+# Projeções e Metas
+## Voltado ara os Inputs:
+```{python}
+#| tbl-cap: "Metas CCR input"
+
+ccr_envelope_input.print_goal()
+```
+## Voltado para os Outputs
+```{python}
+#| tbl-cap: "Metas CCR output"
+
+ccr_envelope_output.print_goal()
+```

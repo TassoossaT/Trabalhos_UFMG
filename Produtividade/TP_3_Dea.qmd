@@ -1,0 +1,202 @@
+---
+title: "TP 3 Aalises Modelos Aditivo de Pareto-Koopmans"
+author: Tasso Augusto Tomaz Pimenta 2021072198
+format:
+        pdf:
+            toc: true
+            lot: true
+echo: false
+---
+# Definição do Tp
+
+``` 
+Rode o modelo aditivo de Pareto-Koopmans e compare com o resultado dos modelos BCC 
+e CCR obtidosnos laboratórios I e II. Analise os resultados e identifique os itens
+abaixo:
+
+• a eficiência (pura,total e escala) das DMUs
+• identifique em que escala as DMUs operam para cada modelo
+• histograma das eficiências
+• identifique as DMUs dentro das eficiências do histograma
+• os benchmarks para cada DMU
+• os pesos relativos dos inputs e outputs
+``` 
+#  Resultado da Analise:
+```
+O modelo de pareto-koopmans, diferentemente dos modelos radias, não indica uma 
+eficiencia, ela na verdade funciona como uma distancia, quanto maior o valor da 
+objetiva, pior ela é. O valor indica a distancia de uma a outra, ou seja quanto maior
+mais distante a dmu está da fronteira, então em comparação com os modelos anteriores
+onde as dmus eficientes eram 8, 11 e 13, os valores da objetiva delas aqui é 0, ou 
+seja são as mais eficiente, em cima da fronteira.
+Os valores dos pesos e do banchmark das dmus foram um pouco esquisitos, os valores 
+dos pesos forám extremamente baixos, talvez por causa da unidade de medica, 
+o modelo por pesos funcionam melhor se os valores são maiores, e de envelope com menoes
+eu não tratei os dados no de multiplicadores, mas no do envelope se não tratados não
+aparece resultados.
+
+
+```
+## Os Dados usados são:
+```{python}
+#| tbl-cap: "dados de Provisão"
+
+from dea_compacto_Tasso import *
+# dados de Provisão
+data_prov.print()
+```
+```{python}
+#| tbl-cap: "dados de Distribuição"
+
+# dados de Distribuição
+data_dist.print()
+```
+```{python}
+d_aditivo_multi = Model_add(data_dist,mode="Weigth")
+d_aditivo_multi.model()
+d_aditivo_multi.print_solution()
+```
+
+```{python}
+
+d_aditivo_multi.print_fator_escala()
+```
+```{python}
+d_aditivo_envelope = Model_add(normatize_data(data_dist),mode="Envelope")
+d_aditivo_envelope.model()
+d_aditivo_envelope.print_solution()
+```
+```{python}
+d_aditivo_envelope.print_solution(print_slack=True)
+```
+
+```{python}
+
+d_aditivo_envelope.print_fator_escala()
+```
+```{python}
+import matplotlib.pyplot as plt
+
+solucoes = d_aditivo_envelope.get_resultado()
+
+DMUs        = [dmu for dmu in solucoes.keys()]
+nome        = [solucoes[dmu].DMU for dmu in DMUs]
+Constantes  = [solucoes[dmu].Constante for dmu in DMUs]
+Variaveis   = [solucoes[dmu].Variavel for dmu in DMUs]
+Positives   = [solucoes[dmu].Positive for dmu in DMUs]
+Negatives   = [solucoes[dmu].Negative for dmu in DMUs]
+
+plt.scatter(nome, Constantes, c='red', marker='v', label='Constante')
+plt.scatter(nome, Variaveis, c='green', marker='^', label='Variável')
+plt.scatter(nome, Positives, c='blue', marker='<', label='Positivo')
+plt.scatter(nome, Negatives, c='yellow', marker='>', label='Negativo')
+
+plt.xticks(rotation=90)
+plt.xlabel('DMU')
+plt.ylabel('Função objetiva')
+plt.title('Gráfico do valor da objetiva por DMU Envelope Distribuição')
+plt.legend()
+plt.show()
+```
+```{python}
+import matplotlib.pyplot as plt
+
+solucoes = d_aditivo_multi.get_resultado()
+
+DMUs        = [dmu for dmu in solucoes.keys()]
+nome        = [solucoes[dmu].DMU for dmu in DMUs]
+Constantes  = [solucoes[dmu].Constante for dmu in DMUs]
+Variaveis   = [solucoes[dmu].Variavel for dmu in DMUs]
+Positives   = [solucoes[dmu].Positive for dmu in DMUs]
+Negatives   = [solucoes[dmu].Negative for dmu in DMUs]
+
+plt.scatter(nome, Constantes, c='red', marker='v', label='Constante')
+plt.scatter(nome, Variaveis, c='green', marker='^', label='Variável')
+plt.scatter(nome, Positives, c='blue', marker='<', label='Positivo')
+plt.scatter(nome, Negatives, c='yellow', marker='>', label='Negativo')
+
+plt.xticks(rotation=90)
+plt.xlabel('DMU')
+plt.ylabel('Função objetiva')
+plt.title('Gráfico do valor da objetiva por DMU Muultiplicadores Distribuição')
+plt.legend()
+plt.show()
+```
+```{python}
+p_aditivo_multi = Model_add(data_prov,mode="Weigth")
+p_aditivo_multi.model()
+p_aditivo_multi.print_solution()
+```
+
+```{python}
+
+p_aditivo_multi.print_fator_escala()
+```
+```{python}
+p_aditivo_envelope = Model_add(normatize_data(data_prov),mode="Envelope")
+p_aditivo_envelope.model()
+p_aditivo_envelope.print_solution()
+```
+```{python}
+p_aditivo_envelope.print_solution(print_slack=True)
+```
+
+```{python}
+
+p_aditivo_envelope.print_fator_escala()
+```
+```{python}
+import matplotlib.pyplot as plt
+
+solucoes = p_aditivo_envelope.get_resultado()
+
+DMUs        = [dmu for dmu in solucoes.keys()]
+Constantes  = [solucoes[dmu].Constante for dmu in DMUs]
+Variaveis   = [solucoes[dmu].Variavel for dmu in DMUs]
+Positives   = [solucoes[dmu].Positive for dmu in DMUs]
+Negatives   = [solucoes[dmu].Negative for dmu in DMUs]
+
+plt.scatter(DMUs, Constantes, c='red', marker='v', label='Constante')
+plt.scatter(DMUs, Variaveis, c='green', marker='^', label='Variável')
+plt.scatter(DMUs, Positives, c='blue', marker='<', label='Positivo')
+plt.scatter(DMUs, Negatives, c='yellow', marker='>', label='Negativo')
+
+plt.xticks(rotation=90)
+plt.xlabel('DMU')
+plt.ylabel('Função objetiva')
+plt.title('Gráfico do valor da objetiva por DMU Envelope Provisão')
+plt.legend()
+plt.show()
+```
+```{python}
+import matplotlib.pyplot as plt
+
+solucoes = p_aditivo_multi.get_resultado()
+
+DMUs        = [dmu for dmu in solucoes.keys()]
+Constantes  = [solucoes[dmu].Constante for dmu in DMUs]
+Variaveis   = [solucoes[dmu].Variavel for dmu in DMUs]
+Positives   = [solucoes[dmu].Positive for dmu in DMUs]
+Negatives   = [solucoes[dmu].Negative for dmu in DMUs]
+
+plt.scatter(DMUs, Constantes, c='red', marker='v', label='Constante')
+plt.scatter(DMUs, Variaveis, c='green', marker='^', label='Variável')
+plt.scatter(DMUs, Positives, c='blue', marker='<', label='Positivo')
+plt.scatter(DMUs, Negatives, c='yellow', marker='>', label='Negativo')
+
+plt.xticks(rotation=90)
+plt.xlabel('DMU')
+plt.ylabel('Função objetiva')
+plt.title('Gráfico do valor da objetiva por DMU Muultiplicadores Provisão')
+plt.legend()
+plt.show()
+```
+
+```{python}
+
+d_aditivo_envelope.print_goal()
+```
+```{python}
+
+p_aditivo_envelope.print_goal()
+```

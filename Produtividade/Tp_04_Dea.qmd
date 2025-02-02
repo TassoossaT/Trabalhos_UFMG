@@ -1,0 +1,170 @@
+---
+title: "TP 4 Aalises Modelos Baseado em folgas"
+author: Tasso Augusto Tomaz Pimenta 2021072198
+format:
+        pdf:
+            toc: true
+            lot: true
+echo: false
+---
+
+# Definição do Tp
+
+``` 
+Rode o modelo baseado em folgas e compare com o resultado dos modelos BCC, CCR, e Pareto-Koopmans
+obtidos nos laboratórios I a III. Analise os resultados e identifique os itens abaixo:
+
+• a eficiência (pura,total e escala) das DMUs
+• identifique em que escala as DMUs operam para cada modelo
+• histograma das eficiências
+• identifique as DMUs dentro das eficiências do histograma
+• os benchmarks para cada DMU
+• os pesos relativos dos inputs e outputs
+``` 
+# Resultado da Analise:
+``` 
+O modelo SBM puro, aparentemente gera muitos empates, antes apenas a 8, 11 e 13 eram eficientes,
+agora a 3 e  do 5 ao 14, porém o valor da função objetiva não é exatamente a eficiencia.
+Um detalhe interessante é que t sempre tendeu a valer 1.
+Mas no modelo orientado os resultados forám muito parecidos com os modelos anteriores, menos as metas, todas elas deram resultados muitos estranhos e diferentes, a maioria ficou proximo de 0
+``` 
+
+
+## Os Dados usados são:
+```{python}
+#| tbl-cap: "dados de Provisão"
+
+from dea_compacto_Tasso import *
+# dados de Provisão
+data_prov.print()
+```
+```{python}
+#| tbl-cap: "dados de Distribuição"
+
+# dados de Distribuição
+data_dist.print()
+```
+# Modelo SBM para Distribuição
+```{python}
+smb = Model_SBM(normatize_data(data_dist), scale="Variavel")
+smb.model()
+smb.print_solution()
+```
+```{python}
+smb.print_solution(print_slack=False)
+```
+## Metas 
+```{python}
+smb.print_goal()
+```
+# Modelo SBM orientado
+## Orientado a Inputs
+```{python}
+sbm_input = Model_SBM(normatize_data(data_dist), mode= "Input")
+sbm_output= Model_SBM(normatize_data(data_dist), mode= "Output")
+sbm_input.model()
+sbm_output.model()
+sbm_input.print_solution()
+```
+```{python}
+sbm_input.print_solution(print_slack=False)
+```
+## Orientado a Output
+```{python}
+sbm_output.print_solution()
+```
+```{python}
+sbm_output.print_solution(print_slack=False)
+```
+# Retorno de Escala
+```{python}
+constante = Model_SBM(normatize_data(data_dist)).get_solution()
+variavel  = Model_SBM(normatize_data(data_dist),scale ="Variavel").get_solution()
+positivo  = Model_SBM(normatize_data(data_dist),scale ="Positive").get_solution()
+negativo  = Model_SBM(normatize_data(data_dist),scale ="Negaative").get_solution()
+RetornoEscala(constante,variavel,negativo,positivo).print()
+```
+# Grafico da eficiencia, de acordo com cada fator de escala
+```{python}
+import matplotlib.pyplot as plt
+
+dmus = [dmu['dmu_name'] for dmu in constante.values()]
+eficiencias = [dmu['efficiency'] for dmu in constante.values()]
+plt.scatter(dmus, eficiencias, c='red',marker='>',label='constante')
+eficiencias = [dmu['efficiency'] for dmu in variavel.values()]
+plt.scatter(dmus, eficiencias, c='y',marker='v',label='variavel')
+eficiencias = [dmu['efficiency'] for dmu in negativo.values()]
+plt.scatter(dmus, eficiencias,c='g',marker='^',label='Negativo')
+eficiencias = [dmu['efficiency'] for dmu in positivo.values()]
+plt.scatter(dmus, eficiencias,c='b',marker='<',label='Positivo')
+
+plt.xticks(rotation=90)
+plt.xlabel('DMU')
+plt.ylabel('Eficiência')
+plt.title('Gráfico de Eficiência por DMU Distribuição')
+plt.legend()
+plt.show()
+```
+
+# Modelo SBM para Provisão
+```{python}
+smb = Model_SBM(normatize_data(data_prov), scale="Variavel")
+smb.model()
+smb.print_solution()
+```
+```{python}
+smb.print_solution(print_slack=False)
+```
+## Metas 
+```{python}
+smb.print_goal()
+```
+# Modelo SBM orientado
+## Orientado a Inputs
+```{python}
+sbm_input = Model_SBM(normatize_data(data_prov), mode= "Input")
+sbm_output= Model_SBM(normatize_data(data_prov), mode= "Output")
+sbm_input.model()
+sbm_output.model()
+sbm_input.print_solution()
+```
+```{python}
+sbm_input.print_solution(print_slack=False)
+```
+## Orientado a Output
+```{python}
+sbm_output.print_solution()
+```
+```{python}
+sbm_output.print_solution(print_slack=False)
+```
+# Retorno de Escala
+```{python}
+constante = Model_SBM(normatize_data(data_prov)).get_solution()
+variavel  = Model_SBM(normatize_data(data_prov),scale ="Variavel").get_solution()
+positivo  = Model_SBM(normatize_data(data_prov),scale ="Positive").get_solution()
+negativo  = Model_SBM(normatize_data(data_prov),scale ="Negaative").get_solution()
+RetornoEscala(constante,variavel,negativo,positivo).print()
+```
+# Grafico da eficiencia, de acordo com cada fator de escala
+```{python}
+import matplotlib.pyplot as plt
+
+dmus = [dmu['dmu_name'] for dmu in constante.values()]
+eficiencias = [dmu['efficiency'] for dmu in constante.values()]
+plt.scatter(dmus, eficiencias, c='red',marker='>',label='constante')
+eficiencias = [dmu['efficiency'] for dmu in variavel.values()]
+plt.scatter(dmus, eficiencias, c='y',marker='v',label='variavel')
+eficiencias = [dmu['efficiency'] for dmu in negativo.values()]
+plt.scatter(dmus, eficiencias,c='g',marker='^',label='Negativo')
+eficiencias = [dmu['efficiency'] for dmu in positivo.values()]
+plt.scatter(dmus, eficiencias,c='b',marker='<',label='Positivo')
+
+plt.xticks(rotation=90)
+plt.xlabel('DMU')
+plt.ylabel('Eficiência')
+plt.title('Gráfico de Eficiência por DMU Distribuição')
+plt.legend()
+plt.show()
+```
+

@@ -1,0 +1,433 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: \"TP 5 medida aprimorada de Russel\"\n",
+        "author: Tasso Augusto Tomaz Pimenta 2021072198\n",
+        "format: \n",
+        "        pdf:\n",
+        "                toc: true\n",
+        "                lot: true\n",
+        "echo: false\n",
+        "---\n",
+        "\n",
+        "# Definição do Tp\n",
+        "```\n",
+        "Rode o modelo da medida aprimorada de Russel e compare com o resultado dos modelos BCC, CCR,\n",
+        "Pareto-Koopmans, e baseado em folgas obtidos nos laboratórios I a IV. Analise os resultados e \n",
+        "identifique os itens abaixo:\n",
+        "\n",
+        "• a eficiência (pura,total e escala) das DMUs\n",
+        "• identifique em que escala as DMUs operam para cada modelo\n",
+        "• histograma das eficiências\n",
+        "• identifique as DMUs dentro das eficiências do histograma\n",
+        "• os benchmarks para cada DMU\n",
+        "• os pesos relativos dos inputs e outputs\n",
+        "```\n",
+        "\n",
+        "## Os Dados usados são:"
+      ],
+      "id": "3a080f75"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#| tbl-cap: \"dados de Provisão\"\n",
+        "\n",
+        "from dea_compacto_Tasso import *\n",
+        "# dados de Provisão\n",
+        "data_prov.print()"
+      ],
+      "id": "734edbf6",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#| tbl-cap: \"dados de Distribuição\"\n",
+        "\n",
+        "# dados de Distribuição\n",
+        "data_dist.print()"
+      ],
+      "id": "7b7a8c43",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Modelo da medida aprimorada de Russel"
+      ],
+      "id": "3c8c8d1a"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "erm = Model_ERM(normatize_data(data_dist))\n",
+        "erm.model()"
+      ],
+      "id": "8058acf5",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "erm.print_solution(print_ll = False)"
+      ],
+      "id": "e60a0401",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "erm.print_solution()"
+      ],
+      "id": "da0096b8",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Metas"
+      ],
+      "id": "6a82f94d"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "erm.print_goal()"
+      ],
+      "id": "83f12834",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## retorno de escala"
+      ],
+      "id": "b189d90d"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "Variavel = Model_ERM(normatize_data(data_dist), scale = 'Variavel')\n",
+        "Positive = Model_ERM(normatize_data(data_dist), scale = 'Positive')\n",
+        "Negative = Model_ERM(normatize_data(data_dist), scale = 'Negative')\n",
+        "Variavel.model()\n",
+        "Positive.model()\n",
+        "Negative.model()\n",
+        "c,v,p,n =erm.get_solution(), Variavel.get_solution(), Positive.get_solution(),Negative.get_solution()\n",
+        "\n",
+        "erm_esc = RetornoEscala(c,v,p,n)\n",
+        "erm_esc.print()"
+      ],
+      "id": "e5f35a70",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Comparações com outros modelos\n",
+        "\n",
+        "## Diferença dos retornos de escala erm /radiais(mudando o tipo de retorno, ccr, bcc, irs, drs)\n"
+      ],
+      "id": "7dba529f"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "ccr       = Model_frabric_Envelope(normatize_data(data_dist))\n",
+        "variavel  = Model_frabric_Envelope(normatize_data(data_dist), scale = 'Variavel')\n",
+        "positivo  = Model_frabric_Envelope(normatize_data(data_dist), scale = 'Positive')\n",
+        "negativo  = Model_frabric_Envelope(normatize_data(data_dist), scale = 'Negative')\n",
+        "ccr.model()\n",
+        "variavel.model()\n",
+        "positivo.model()\n",
+        "negativo.model()\n",
+        "c,v,p,n = ccr.get_solution(),variavel.get_solution(),positivo.get_solution(),negativo.get_solution()\n",
+        "\n",
+        "ccr_esc     = RetornoEscala(c,v,p,n).get_escala()"
+      ],
+      "id": "1cfeda8f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "add       = Model_add(normatize_data(data_dist), mode = \"Envelope\")\n",
+        "variavel  = Model_add(normatize_data(data_dist), mode = \"Envelope\", scale = 'Variavel')\n",
+        "positivo  = Model_add(normatize_data(data_dist), mode = \"Envelope\", scale = 'Positive')\n",
+        "negativo  = Model_add(normatize_data(data_dist), mode = \"Envelope\", scale = 'Negative')\n",
+        "add.model()\n",
+        "add.print_solution()\n",
+        "add.print_goal()\n",
+        "variavel.model()\n",
+        "positivo.model()\n",
+        "negativo.model()\n",
+        "c,v,p,n = add.get_solution(),variavel.get_solution(),positivo.get_solution(),negativo.get_solution()\n",
+        "\n",
+        "add_esc     = RetornoEscala(c,v,p,n).get_escala()"
+      ],
+      "id": "fd304a31",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "sbm       = Model_SBM(normatize_data(data_dist))\n",
+        "variavel  = Model_SBM(normatize_data(data_dist), scale = 'Variavel')\n",
+        "positivo  = Model_SBM(normatize_data(data_dist), scale = 'Positive')\n",
+        "negativo  = Model_SBM(normatize_data(data_dist), scale = 'Negative')\n",
+        "sbm.model()\n",
+        "variavel.model()\n",
+        "positivo.model()\n",
+        "negativo.model()\n",
+        "\n",
+        "c,v,p,n = sbm.get_solution(),variavel.get_solution(),positivo.get_solution(),negativo.get_solution()\n",
+        "\n",
+        "sbm_esc     = RetornoEscala(c,v,p,n).get_escala()"
+      ],
+      "id": "2e3e2baa",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "#### tipo de retorno, modelo | erm x add x sbm x radiais(ccr)"
+      ],
+      "id": "fd7791ba"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "escala = [erm_esc.get_escala(),add_esc,sbm_esc,ccr_esc]\n",
+        "ComparadorEscala(escala).print(nome = ['ERM', 'ADD','SBM','CCR/BCC'])"
+      ],
+      "id": "51e06428",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## grafico da diferença das metas de cada modelo\n",
+        "## todos os inputs de cada modelo"
+      ],
+      "id": "85356448"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import matplotlib.pyplot as plt\n",
+        "from mpl_toolkits.mplot3d import Axes3D\n",
+        "\n",
+        "fig = plt.figure(figsize=(10, 16))\n",
+        "ax = fig.add_subplot(111, projection='3d')\n",
+        "\n",
+        "models = {'ERM': erm,\n",
+        "          'CCR': ccr,\n",
+        "          'SBM': sbm,\n",
+        "          'ADD': add}\n",
+        "model_colors = {'ERM': 'blue', 'CCR': 'red', 'SBM': 'yellow', 'ADD': 'green'}\n",
+        "\n",
+        "I = range(len(data_dist.input_names))\n",
+        "for model_name, model in models.items():\n",
+        "        goals = model.get_goal()\n",
+        "        nomes = [meta['dmu_name'] for meta in goals.values()]\n",
+        "        for i in I:\n",
+        "                meta = [meta['meta_inputs'][i] for meta in goals.values()]\n",
+        "                ax.bar(nomes, meta,i,zdir='y', alpha=0.5,color=model_colors[model_name])\n",
+        "\n",
+        "legend_labels = []\n",
+        "for model_name, color in model_colors.items():\n",
+        "        legend_labels.append(plt.Line2D([0], [0], marker='o', color=color, label=model_name))\n",
+        "ax.legend(handles=legend_labels)\n",
+        "ax.set_xlabel('DMUs')\n",
+        "ax.set_ylabel('Inputs')\n",
+        "ax.set_zlabel('Mudança Percentual(%)')\n",
+        "\n",
+        "plt.show()"
+      ],
+      "id": "e8e19b71",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Analise de apenas um imput\n",
+        "Divergencia KL: Kullback-Leibler (KL Divergence) é uma medida que quantifica \n",
+        "o quanto uma distribuição de probabilidade diverge de uma distribuição de \n",
+        "probabilidade esperada ou de referência."
+      ],
+      "id": "ee6ec917"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import numpy as np\n",
+        "import matplotlib.pyplot as plt\n",
+        "from scipy.stats import entropy\n",
+        "\n",
+        "plt.figure()\n",
+        "models = {'ERM': erm,\n",
+        "          'CCR': ccr,\n",
+        "          'SBM': sbm,\n",
+        "          'ADD': add}\n",
+        "model_colors = {'ERM': 'blue', 'CCR': 'red', 'SBM': 'yellow', 'ADD': 'green'}\n",
+        "histograms = {}\n",
+        "\n",
+        "for model_name, model in models.items():\n",
+        "    goals = model.get_goal()\n",
+        "    nomes = [meta['dmu_name'] for meta in goals.values()]\n",
+        "    meta  = [meta['meta_inputs'][0] for meta in goals.values()]\n",
+        "    \n",
+        "    plt.bar(nomes,meta , alpha=0.6, color=model_colors[model_name], label=model_name)\n",
+        "    \n",
+        "    hist, bin_edges = np.histogram(meta, bins=30, density=True)\n",
+        "    \n",
+        "    hist += 1e-8\n",
+        "    \n",
+        "    histograms[model_name] = hist\n",
+        "    \n",
+        "\n",
+        "\n",
+        "\n",
+        "plt.legend(loc='upper right')\n",
+        "plt.show()"
+      ],
+      "id": "88bf7a36",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "model_names = list(histograms.keys())\n",
+        "for i in range(len(model_names)):\n",
+        "    for j in range(i + 1, len(model_names)):\n",
+        "        hist1 = histograms[model_names[i]]\n",
+        "        hist2 = histograms[model_names[j]]\n",
+        "        kl_div = entropy(hist1, hist2)\n",
+        "        print(f\"Divergência KL entre {model_names[i]} e {model_names[j]}: {kl_div}\")"
+      ],
+      "id": "355c48b2",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Interpretação Geral\n",
+        "Modelos ERM e ADD: \n",
+        "Praticamente idênticos em termos de distribuição de metas, \n",
+        "sugerindo que esses dois modelos produzem resultados muito semelhantes.\n",
+        "\n",
+        "Modelos CCR e ADD: \n",
+        "Muito diferentes, indicando que esses dois modelos têm abordagens \n",
+        "ou resultados substancialmente diferentes.\n",
+        "\n",
+        "Modelos ERM e CCR/SBM: \n",
+        "Significativamente diferentes, com ERM tendo divergências \n",
+        "consideráveis com ambos CCR e SBM.\n",
+        "\n",
+        "Modelos CCR e SBM: \n",
+        "Também diferem, mas a divergência é menor do que com ADD.\n",
+        "\n",
+        "Modelos SBM e ADD: \n",
+        "Bastante diferentes, mas um pouco menos que CCR e ADD.\n",
+        "\n",
+        "Valores Altos (acima de 7-8): \n",
+        "Indicativos de distribuições de metas substancialmente diferentes.\n",
+        "Valores Baixos (próximos de zero): \n",
+        "Indicativos de distribuições muito semelhantes.\n",
+        "## todos os Outputs de cada modelo"
+      ],
+      "id": "02096293"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import matplotlib.pyplot as plt\n",
+        "from mpl_toolkits.mplot3d import Axes3D\n",
+        "\n",
+        "fig = plt.figure(figsize=(10, 16))\n",
+        "ax = fig.add_subplot(111, projection='3d')\n",
+        "\n",
+        "models = {'ERM': erm,\n",
+        "          'CCR': ccr,\n",
+        "          'SBM': sbm,\n",
+        "          'ADD': add}\n",
+        "\n",
+        "# Define a color for each model\n",
+        "model_colors = {'ERM': 'blue', 'CCR': 'red', 'SBM': 'yellow', 'ADD': 'green'}\n",
+        "\n",
+        "O = range(len(data_dist.output_names))\n",
+        "for model_name, model in models.items():\n",
+        "    goals = model.get_goal()\n",
+        "    nomes = [meta['dmu_name'] for meta in goals.values()]\n",
+        "    for o in O:\n",
+        "        meta = [meta['meta_outputs'][o] for meta in goals.values()]\n",
+        "        ax.bar(nomes, meta, o, zdir='y', label=f\"{model_name} - Output {o}\", alpha=0.6, color=model_colors[model_name])\n",
+        "legend_labels = []\n",
+        "for model_name, color in model_colors.items():\n",
+        "        legend_labels.append(plt.Line2D([0], [0], marker='o', color=color, label=model_name))\n",
+        "\n",
+        "ax.legend(handles=legend_labels)\n",
+        "ax.set_xlabel('DMUs')\n",
+        "ax.set_ylabel('Outputs')\n",
+        "ax.set_zlabel('Mudança Percentual(%)')\n",
+        "\n",
+        "plt.show()"
+      ],
+      "id": "6175228e",
+      "execution_count": null,
+      "outputs": []
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "C:\\Users\\tastc\\AppData\\Roaming\\Python\\share\\jupyter\\kernels\\python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}

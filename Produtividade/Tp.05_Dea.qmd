@@ -1,0 +1,259 @@
+---
+title: "TP 5 medida aprimorada de Russel"
+author: Tasso Augusto Tomaz Pimenta 2021072198
+format: 
+        pdf:
+                toc: true
+                lot: true
+echo: false
+---
+# Definição do Tp
+```
+Rode o modelo da medida aprimorada de Russel e compare com o resultado dos modelos BCC, CCR,
+Pareto-Koopmans, e baseado em folgas obtidos nos laboratórios I a IV. Analise os resultados e 
+identifique os itens abaixo:
+
+• a eficiência (pura,total e escala) das DMUs
+• identifique em que escala as DMUs operam para cada modelo
+• histograma das eficiências
+• identifique as DMUs dentro das eficiências do histograma
+• os benchmarks para cada DMU
+• os pesos relativos dos inputs e outputs
+```
+
+## Os Dados usados são:
+```{python}
+#| tbl-cap: "dados de Provisão"
+
+from dea_compacto_Tasso import *
+# dados de Provisão
+data_prov.print()
+```
+```{python}
+#| tbl-cap: "dados de Distribuição"
+
+# dados de Distribuição
+data_dist.print()
+```
+# Modelo da medida aprimorada de Russel
+```{python}
+erm = Model_ERM(normatize_data(data_dist))
+erm.model()
+```
+```{python}
+erm.print_solution(print_ll = False)
+```
+```{python}
+erm.print_solution()
+```
+## Metas
+```{python}
+erm.print_goal()
+```
+## retorno de escala
+```{python}
+Variavel = Model_ERM(normatize_data(data_dist), scale = 'Variavel')
+Positive = Model_ERM(normatize_data(data_dist), scale = 'Positive')
+Negative = Model_ERM(normatize_data(data_dist), scale = 'Negative')
+Variavel.model()
+Positive.model()
+Negative.model()
+c,v,p,n =erm.get_solution(), Variavel.get_solution(), Positive.get_solution(),Negative.get_solution()
+
+erm_esc = RetornoEscala(c,v,p,n)
+erm_esc.print()
+```
+# Comparações com outros modelos
+
+## Diferença dos retornos de escala erm /radiais(mudando o tipo de retorno, ccr, bcc, irs, drs)
+
+```{python}
+ccr       = Model_frabric_Envelope(normatize_data(data_dist))
+variavel  = Model_frabric_Envelope(normatize_data(data_dist), scale = 'Variavel')
+positivo  = Model_frabric_Envelope(normatize_data(data_dist), scale = 'Positive')
+negativo  = Model_frabric_Envelope(normatize_data(data_dist), scale = 'Negative')
+ccr.model()
+variavel.model()
+positivo.model()
+negativo.model()
+c,v,p,n = ccr.get_solution(),variavel.get_solution(),positivo.get_solution(),negativo.get_solution()
+
+ccr_esc     = RetornoEscala(c,v,p,n).get_escala()
+```
+```{python}
+add       = Model_add(normatize_data(data_dist), mode = "Envelope")
+variavel  = Model_add(normatize_data(data_dist), mode = "Envelope", scale = 'Variavel')
+positivo  = Model_add(normatize_data(data_dist), mode = "Envelope", scale = 'Positive')
+negativo  = Model_add(normatize_data(data_dist), mode = "Envelope", scale = 'Negative')
+add.model()
+add.print_solution()
+add.print_goal()
+variavel.model()
+positivo.model()
+negativo.model()
+c,v,p,n = add.get_solution(),variavel.get_solution(),positivo.get_solution(),negativo.get_solution()
+
+add_esc     = RetornoEscala(c,v,p,n).get_escala()
+```
+```{python}
+sbm       = Model_SBM(normatize_data(data_dist))
+variavel  = Model_SBM(normatize_data(data_dist), scale = 'Variavel')
+positivo  = Model_SBM(normatize_data(data_dist), scale = 'Positive')
+negativo  = Model_SBM(normatize_data(data_dist), scale = 'Negative')
+sbm.model()
+variavel.model()
+positivo.model()
+negativo.model()
+
+c,v,p,n = sbm.get_solution(),variavel.get_solution(),positivo.get_solution(),negativo.get_solution()
+
+sbm_esc     = RetornoEscala(c,v,p,n).get_escala()
+```
+#### tipo de retorno, modelo | erm x add x sbm x radiais(ccr)
+```{python}
+
+escala = [erm_esc.get_escala(),add_esc,sbm_esc,ccr_esc]
+ComparadorEscala(escala).print(nome = ['ERM', 'ADD','SBM','CCR/BCC'])
+
+```
+## grafico da diferença das metas de cada modelo
+## todos os inputs de cada modelo
+```{python}
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+fig = plt.figure(figsize=(10, 16))
+ax = fig.add_subplot(111, projection='3d')
+
+models = {'ERM': erm,
+          'CCR': ccr,
+          'SBM': sbm,
+          'ADD': add}
+model_colors = {'ERM': 'blue', 'CCR': 'red', 'SBM': 'yellow', 'ADD': 'green'}
+
+I = range(len(data_dist.input_names))
+for model_name, model in models.items():
+        goals = model.get_goal()
+        nomes = [meta['dmu_name'] for meta in goals.values()]
+        for i in I:
+                meta = [meta['meta_inputs'][i] for meta in goals.values()]
+                ax.bar(nomes, meta,i,zdir='y', alpha=0.5,color=model_colors[model_name])
+
+legend_labels = []
+for model_name, color in model_colors.items():
+        legend_labels.append(plt.Line2D([0], [0], marker='o', color=color, label=model_name))
+ax.legend(handles=legend_labels)
+ax.set_xlabel('DMUs')
+ax.set_ylabel('Inputs')
+ax.set_zlabel('Mudança Percentual(%)')
+
+plt.show()
+```
+
+### Analise de apenas um imput
+Divergencia KL: Kullback-Leibler (KL Divergence) é uma medida que quantifica 
+o quanto uma distribuição de probabilidade diverge de uma distribuição de 
+probabilidade esperada ou de referência.
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import entropy
+
+plt.figure()
+models = {'ERM': erm,
+          'CCR': ccr,
+          'SBM': sbm,
+          'ADD': add}
+model_colors = {'ERM': 'blue', 'CCR': 'red', 'SBM': 'yellow', 'ADD': 'green'}
+histograms = {}
+
+for model_name, model in models.items():
+    goals = model.get_goal()
+    nomes = [meta['dmu_name'] for meta in goals.values()]
+    meta  = [meta['meta_inputs'][0] for meta in goals.values()]
+    
+    plt.bar(nomes,meta , alpha=0.6, color=model_colors[model_name], label=model_name)
+    
+    hist, bin_edges = np.histogram(meta, bins=30, density=True)
+    
+    hist += 1e-8
+    
+    histograms[model_name] = hist
+    
+
+
+
+plt.legend(loc='upper right')
+plt.show()
+
+```
+```{python}
+model_names = list(histograms.keys())
+for i in range(len(model_names)):
+    for j in range(i + 1, len(model_names)):
+        hist1 = histograms[model_names[i]]
+        hist2 = histograms[model_names[j]]
+        kl_div = entropy(hist1, hist2)
+        print(f"Divergência KL entre {model_names[i]} e {model_names[j]}: {kl_div}")
+```
+
+Interpretação Geral
+Modelos ERM e ADD: 
+Praticamente idênticos em termos de distribuição de metas, 
+sugerindo que esses dois modelos produzem resultados muito semelhantes.
+
+Modelos CCR e ADD: 
+Muito diferentes, indicando que esses dois modelos têm abordagens 
+ou resultados substancialmente diferentes.
+
+Modelos ERM e CCR/SBM: 
+Significativamente diferentes, com ERM tendo divergências 
+consideráveis com ambos CCR e SBM.
+
+Modelos CCR e SBM: 
+Também diferem, mas a divergência é menor do que com ADD.
+
+Modelos SBM e ADD: 
+Bastante diferentes, mas um pouco menos que CCR e ADD.
+
+Valores Altos (acima de 7-8): 
+Indicativos de distribuições de metas substancialmente diferentes.
+Valores Baixos (próximos de zero): 
+Indicativos de distribuições muito semelhantes.
+## todos os Outputs de cada modelo
+```{python}
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+fig = plt.figure(figsize=(10, 16))
+ax = fig.add_subplot(111, projection='3d')
+
+models = {'ERM': erm,
+          'CCR': ccr,
+          'SBM': sbm,
+          'ADD': add}
+
+# Define a color for each model
+model_colors = {'ERM': 'blue', 'CCR': 'red', 'SBM': 'yellow', 'ADD': 'green'}
+
+O = range(len(data_dist.output_names))
+for model_name, model in models.items():
+    goals = model.get_goal()
+    nomes = [meta['dmu_name'] for meta in goals.values()]
+    for o in O:
+        meta = [meta['meta_outputs'][o] for meta in goals.values()]
+        ax.bar(nomes, meta, o, zdir='y', label=f"{model_name} - Output {o}", alpha=0.6, color=model_colors[model_name])
+legend_labels = []
+for model_name, color in model_colors.items():
+        legend_labels.append(plt.Line2D([0], [0], marker='o', color=color, label=model_name))
+
+ax.legend(handles=legend_labels)
+ax.set_xlabel('DMUs')
+ax.set_ylabel('Outputs')
+ax.set_zlabel('Mudança Percentual(%)')
+
+plt.show()
+```
+```{python}
+
+```
