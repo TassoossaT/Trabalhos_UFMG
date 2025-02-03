@@ -161,6 +161,10 @@ void BalancedBinaryTree<T>::getIndices(TreeNode* node, const T& value, const std
             for (int i = 0; i < node->indices.getSize(); ++i) {
                 result.push_back(node->indices[i]);
             }
+        } else if (value < node->value) {
+            getIndices(node->left, value, op, result);
+        } else { // value > node->value
+            getIndices(node->right, value, op, result);
         }
     } else if (op == ">=") {
         if (node->value >= value) {
@@ -171,11 +175,14 @@ void BalancedBinaryTree<T>::getIndices(TreeNode* node, const T& value, const std
         }
         getIndices(node->right, value, op, result);
     } else if (op == "<=") {
-        getIndices(node->left, value, op, result);
         if (node->value <= value) {
+            getIndices(node->left, value, op, result);
             for (int i = 0; i < node->indices.getSize(); ++i) {
                 result.push_back(node->indices[i]);
             }
+            getIndices(node->right, value, op, result);
+        } else {
+            getIndices(node->left, value, op, result);
         }
     } else if (op == ">") {
         if (node->value > value) {
@@ -186,11 +193,14 @@ void BalancedBinaryTree<T>::getIndices(TreeNode* node, const T& value, const std
         }
         getIndices(node->right, value, op, result);
     } else if (op == "<") {
-        getIndices(node->left, value, op, result);
         if (node->value < value) {
+            getIndices(node->left, value, op, result);
             for (int i = 0; i < node->indices.getSize(); ++i) {
                 result.push_back(node->indices[i]);
             }
+            getIndices(node->right, value, op, result);
+        } else {
+            getIndices(node->left, value, op, result);
         }
     }
 }

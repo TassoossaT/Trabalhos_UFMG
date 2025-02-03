@@ -4,7 +4,7 @@
 #include <cmath>
 #include <date_.hpp>
 
-Date::Date() : day(1), month(1), year(1900), hour(0), minute(0), second(0), millisecond(0), timezoneOffset(0) {}
+Date::Date() : day(1), month(1), year(1900), hour(0), minute(0), second(0) {} //, timezoneOffset(0)
 
 Date::Date(const std::string& dateTimeStr) {
     std::istringstream ss(dateTimeStr);
@@ -16,15 +16,15 @@ Date::Date(const std::string& dateTimeStr) {
 
     // Parse da hora (hora:minuto:segundo.millisecond)
     ss >> hour >> delimiter >> minute >> delimiter >> second;
-    ss.ignore(1, '.');
-    ss >> millisecond;
 
-    // Parse do timezone
-    char sign;
-    ss >> sign;
-    int tzHours, tzMinutes;
-    ss >> tzHours >> delimiter >> tzMinutes;
-    timezoneOffset = (tzHours * 60 + tzMinutes) * (sign == '-' ? -1 : 1);
+    // Comentado: Parse do timezone
+    // char sign;
+    // ss >> sign;
+    // int tzHours, tzMinutes;
+    // ss >> tzHours >> delimiter >> tzMinutes;
+    // timezoneOffset = (tzHours * 60 + tzMinutes) * (sign == '-' ? -1 : 1);
+    // Como o fuso horário foi removido, manter o valor default (0)
+    // timezoneOffset = 0;
 }
 
 bool Date::isLeapYear(int year) const {
@@ -38,7 +38,7 @@ int Date::daysInMonth(int month, int year) const {
 
 
 double Date::hoursDifference(const Date& other) const {
-    // Converter a data para segundos desde a época (1970-01-01) respeitando o fuso horário
+    // Converter a data para segundos desde a época (1970-01-01)
     auto toEpochSeconds = [](const Date& d) -> double {
         int a = (14 - d.month) / 12;
         int y = d.year + 4800 - a;
@@ -49,9 +49,9 @@ double Date::hoursDifference(const Date& other) const {
         double totalSeconds = daysSinceEpoch * 86400.0 +
                               d.hour * 3600.0 +
                               d.minute * 60.0 +
-                              d.second +
-                              d.millisecond / 1000.0;
-        totalSeconds -= d.timezoneOffset * 60; // Ajuste: converter minutos para segundos
+                              d.second;
+        // Comentado: Ajuste do timezone
+        // totalSeconds -= d.timezoneOffset * 60;
         return totalSeconds;
     };
     double t1 = toEpochSeconds(*this);
@@ -64,19 +64,18 @@ double Date::operator-(const Date& other) const {
 }
 
 void Date::printDate() const {
-    int tzHours = timezoneOffset / 60;
-    int tzMinutes = abs(timezoneOffset % 60);
+    // Comentado: int tzHours = timezoneOffset / 60;
+    // Comentado: int tzMinutes = abs(timezoneOffset % 60);
 
     std::cout << year << "-"
               << std::setfill('0') << std::setw(2) << month << "-"
               << std::setw(2) << day << "T"
               << std::setw(2) << hour << ":"
               << std::setw(2) << minute << ":"
-              << std::setw(2) << second << "."
-              << std::setw(3) << millisecond
-              << (timezoneOffset >= 0 ? "+" : "-")
-              << std::setw(2) << abs(tzHours) << ":"
-              << std::setw(2) << tzMinutes;
+              << std::setw(2) << second;
+              // Comentado: << (timezoneOffset >= 0 ? "+" : "-")
+              // Comentado: << std::setw(2) << abs(tzHours) << ":"
+              // Comentado: << std::setw(2) << tzMinutes;
 }
 
 void Date::addHours(double hoursToAdd) {
@@ -123,7 +122,7 @@ bool Date::operator<(const Date& other) const {
     if (hour != other.hour) return hour < other.hour;
     if (minute != other.minute) return minute < other.minute;
     if (second != other.second) return second < other.second;
-    return millisecond < other.millisecond;
+    return false;  // Added to ensure a return value in all control paths.
 }
 
 bool Date::operator>(const Date& other) const {
@@ -133,8 +132,8 @@ bool Date::operator>(const Date& other) const {
 bool Date::operator==(const Date& other) const {
     return year == other.year && month == other.month && day == other.day &&
            hour == other.hour && minute == other.minute &&
-           second == other.second && millisecond == other.millisecond &&
-           timezoneOffset == other.timezoneOffset;
+           second == other.second;
+           // Comentado: && timezoneOffset == other.timezoneOffset;
 }
 
 bool Date::operator!=(const Date& other) const {
@@ -152,11 +151,10 @@ std::string Date::toString() const {
        << std::setw(2) << day << "T"
        << std::setw(2) << hour << ":"
        << std::setw(2) << minute << ":"
-       << std::setw(2) << second << "."
-       << std::setw(3) << millisecond
-       << (timezoneOffset >= 0 ? "+" : "-")
-       << std::setw(2) << abs(timezoneOffset / 60) << ":"
-       << std::setw(2) << abs(timezoneOffset % 60);
+       << std::setw(2) << second;
+       // Comentado: << (timezoneOffset >= 0 ? "+" : "-")
+       // Comentado: << std::setw(2) << abs(timezoneOffset / 60) << ":"
+       // Comentado: << std::setw(2) << abs(timezoneOffset % 60);
     return ss.str();
 }
 

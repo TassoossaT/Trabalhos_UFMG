@@ -1,17 +1,29 @@
+
+#include "flight.hpp"
+#include "data_Struct.hpp"
+#include "date_.hpp"
+#include "sort.hpp"
+#include "expression.hpp"
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <flight.hpp>
-#include <data_Struct.hpp>
-#include <date_.hpp>
-#include <heapsort.hpp>
-#include <expression.hpp>
 
 
-int main()
+int main(int argc, char* argv[])
 {
+    if (argc != 2) {
+        std::cerr << "Uso: " << argv[0] << " <arquivo_de_entrada.txt>" << std::endl;
+        return 1;
+    }
+
+    std::ifstream inputFile(argv[1]);
+    if (!inputFile.is_open()) {
+        std::cerr << "Erro ao abrir o arquivo de entrada." << std::endl;
+        return 1;
+    }
+
     int n;
-    std::cin >> n;
+    inputFile >> n;
 
     SequentialList<Flight> flightList(n);
     BalancedBinaryTree<std::string> org, dst;
@@ -26,7 +38,7 @@ int main()
         double price;
         int availableSeats, numberOfStops;
 
-        std::cin >> origin >> destination >> price >> availableSeats >> departureTimeStr >> arrivalTimeStr >> numberOfStops;
+        inputFile >> origin >> destination >> price >> availableSeats >> departureTimeStr >> arrivalTimeStr >> numberOfStops;
 
         Date departureTime = Date::fromString(departureTimeStr);
         Date arrivalTime = Date::fromString(arrivalTimeStr);
@@ -44,28 +56,31 @@ int main()
         dur.insert(flight.getDurationInSeconds(), i);
     }
 
-    std::cin >> n;
-    for (int i = 0; i < n; ++i)
+    int q;
+    inputFile >> q;
+
+    for (int i = 0; i < q; ++i)
     {
         int m;
         std::string sortCriteria, logicalExpression;
-        std::cin >> m >> sortCriteria >> logicalExpression;
-        
-        // Chama a função recursiva para avaliar a expressão lógica
+        inputFile >> m >> sortCriteria >> logicalExpression;
+
         DynamicArray indices = evaluateExpressionRec(logicalExpression, org, dst, prc, sea, dep, arr, sto, dur);
-        
-        HeapSort<Flight> heapSort(&flightList, sortCriteria);
+        QuickSort<Flight> quickSort(&flightList, sortCriteria);
+
         for (int j = 0; j < indices.getSize(); ++j)
         {
-            heapSort.insert(indices[j]);
+            quickSort.insert(indices[j]);
         }
 
-        for (int j = 0; j < m && !heapSort.isEmpty(); ++j)
+        std::cout << m << " " << sortCriteria << " " << logicalExpression << std::endl;
+        for (int j = 0; j < m && !quickSort.isEmpty(); ++j)
         {
-            int index = heapSort.extractMin();
+            int index = quickSort.extractMin();
             std::cout << flightList[index] << std::endl;
         }
     }
 
+    inputFile.close();
     return 0;
 }

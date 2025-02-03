@@ -6,8 +6,8 @@
 class Date 
 {
 private:
-    int day, month, year, hour, minute, second, millisecond;
-    int timezoneOffset; // in hour
+    int day, month, year, hour, minute, second;
+    // Comentado: int timezoneOffset; // in hour
     bool isLeapYear(int year) const;
     int daysInMonth(int month, int year) const;
 public:

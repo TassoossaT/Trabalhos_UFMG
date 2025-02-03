@@ -55,8 +55,8 @@ public:
 
     void push_back(int value);
     int operator[](int index) const;
-    int getSize() const;
     void clear();
+    int getSize() const;
     DynamicArray operator&&(const DynamicArray& other) const;
     DynamicArray operator||(const DynamicArray& other) const;
 };
