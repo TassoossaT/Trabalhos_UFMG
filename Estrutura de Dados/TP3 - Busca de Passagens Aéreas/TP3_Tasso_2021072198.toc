@@ -1,0 +1,19 @@
+\babel@toc {brazil}{}\relax 
+\contentsline {section}{\numberline {1}Introdução}{3}{section.1}%
+\contentsline {section}{\numberline {2}Implementação}{3}{section.2}%
+\contentsline {section}{\numberline {3}Análise de Complexidade}{4}{section.3}%
+\contentsline {subsection}{\numberline {3.1}BalancedBinaryTree}{4}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}QuickSort}{5}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}DynamicArray}{5}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Expression}{5}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}SequentialList}{5}{subsection.3.5}%
+\contentsline {section}{\numberline {4}Estratégias de Robustez}{5}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Validação de Entrada}{5}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Tratamento de Exceções}{6}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Verificação de Limites}{6}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Gerenciamento de Memória}{6}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Redimensionamento Dinâmico}{6}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Mensagens de Erro Informativas}{6}{subsection.4.6}%
+\contentsline {subsection}{\numberline {4.7}Testes e Validação}{6}{subsection.4.7}%
+\contentsline {section}{\numberline {5}Análise Experimental}{7}{section.5}%
+\contentsline {section}{\numberline {6}Conclusão}{7}{section.6}%

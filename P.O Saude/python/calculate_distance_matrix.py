@@ -51,19 +51,26 @@ if __name__ == "__main__":
     level_1_file = "P.O Saude/dados_json/EL_1.json"  # Replace with your level 1 JSON file path
     level_2_file = "P.O Saude/dados_json/EL_2.json"  # Replace with your level 2 JSON file path
     level_3_file = "P.O Saude/dados_json/EL_3.json"  # Replace with your level 3 JSON file path
-
+    newLevel1 = "P.O Saude/dados_json/novas_unidades_nivel_1.json"  # Replace with your new unit JSON file path
+    newLevel2 = "P.O Saude/dados_json/novas_unidades_nivel_2.json"  # Replace with your new unit JSON file path
+    newLevel3 = "P.O Saude/dados_json/novas_unidades_nivel_3.json"  # Replace with your new unit JSON file path
     demand_data = load_json(demand_file)
     level_1_data = load_json(level_1_file)
     level_2_data = load_json(level_2_file)
     level_3_data = load_json(level_3_file)
-
+    new_level_1_data = load_json(newLevel1)
+    new_level_2_data = load_json(newLevel2)
+    new_level_3_data = load_json(newLevel3)
     print("Calculando matriz de distância para demanda e nível 1")
-    distance_matrix_1 = calculate_distance_matrix_demand_to_level(demand_data, level_1_data)
+    distance_matrix_1 = calculate_distance_matrix_demand_to_level(demand_data, level_1_data + new_level_1_data)
     print("Calculando matriz de distância para nível 1 e nível 2")
-    distance_matrix_2 = calculate_distance_matrix_level_to_level(level_1_data, level_2_data)
+    distance_matrix_2 = calculate_distance_matrix_level_to_level(level_1_data + new_level_1_data, level_2_data + new_level_2_data)
     print("Calculando matriz de distância para nível 2 e nível 3")
-    distance_matrix_3 = calculate_distance_matrix_level_to_level(level_2_data, level_3_data)
+    distance_matrix_3 = calculate_distance_matrix_level_to_level(level_2_data + new_level_2_data, level_3_data + new_level_3_data)
 
     save_json(distance_matrix_1, 'P.O Saude/dados_json/distance_matrix_1.json')
     save_json(distance_matrix_2, 'P.O Saude/dados_json/distance_matrix_2.json')
     save_json(distance_matrix_3, 'P.O Saude/dados_json/distance_matrix_3.json')
+
+
+

@@ -1,29 +1,43 @@
-import pandas as pd
+# import pandas as pd
 import geopandas as gpd
 import dash_leaflet as dl
-import dash_leaflet.express as dlx
+# import dash_leaflet.express as dlx
 from dash import Dash, html, Output, Input
-from dash_extensions.javascript import arrow_function, assign
+from dash_extensions.javascript import assign
 import json
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
+from shapely.geometry import Point
 from matplotlib.colors import PowerNorm
+from shapely import wkt  # added import
 
-from python.Data import Data, LEVEL
 
 
 class Create_Map:
-    def __init__(self, data: pd.DataFrame):
-            self.data = data
-            bounds = data.total_bounds
-            self.center = [(bounds[1] + bounds[3]) / 2, (bounds[0] + bounds[2]) / 2]
-            self.bounds = [[bounds[1], bounds[0]], [bounds[3], bounds[2]]]
-            self.App()
+    def __init__(self, urljson: str):
+        with open(urljson, encoding="utf-8") as f:
+            self.data = gpd.GeoDataFrame(json.load(f))
+        if "GEOMETRIA" in self.data.columns:
+            # Modified: Create geometry Series and pass it explicitly to GeoDataFrame
+            geometry = self.data["GEOMETRIA"].apply(wkt.loads)
+            self.data = gpd.GeoDataFrame(self.data, geometry=geometry)
+        elif "longitude" in self.data.columns and "latitude" in self.data.columns:
+            
+            # Modified: Create geometry Series and pass it explicitly to GeoDataFrame
+            geometry = self.data.apply(lambda row: Point(row["longitude"], row["latitude"]), axis=1)
+            self.data = gpd.GeoDataFrame(self.data, geometry=geometry)
+        else:
+            raise AttributeError("No geometry data found. Provide 'GEOMETRIA' or 'longitude' and 'latitude' columns.")
+        bounds = self.data.total_bounds
+        self.center = [(bounds[1] + bounds[3]) / 2, (bounds[0] + bounds[2]) / 2]
+        self.bounds = [[bounds[1], bounds[0]], [bounds[3], bounds[2]]]
+        self.App()
     def Color(self):
         min = self.data['QTDPESSOAS'].min()
         max = self.data['QTDPESSOAS'].max()
-        norm = PowerNorm(gamma=0.5, vmin=min, vmax=max)  # Ajuste o valor de gamma conforme necessário
-        color = lambda cor: mcolors.to_hex(plt.get_cmap('viridis')(norm(cor)))
+        norm = PowerNorm(gamma=0.1, vmin=min, vmax=max)  # Ajuste o valor de gamma conforme necessário
+        # color = lambda cor: mcolors.to_hex(plt.get_cmap('viridis')(norm(cor)))
+        color = lambda cor: mcolors.to_hex(plt.get_cmap('Blues')(norm(cor)))
         self.data['color'] = self.data['QTDPESSOAS'].apply(lambda x: color(x))
     def GeoJSON(self):
         self.Color()
@@ -31,10 +45,10 @@ class Create_Map:
             function(feature, context) {
                 return {
                     weight: 2,
-                    opacity: 1,
+                    opacity: 0,        
                     color: 'white',
-                    dashArray: '3',
-                    fillOpacity: 0.7,
+                    dashArray: '1',
+                    fillOpacity: 0,     
                     fillColor: feature.properties['color']
                 };
             }
@@ -44,7 +58,7 @@ class Create_Map:
             style=style_handle,
             zoomToBounds=True,
             zoomToBoundsOnClick=True,
-            hoverStyle={"weight": 5, "color": '#666', "dashArray": ''},
+            hoverStyle={"weight": 1, "color": '#666', "dashArray": ''},
             id="geojson"
             )
     def Info(self,feature=None):
@@ -67,7 +81,8 @@ class Create_Map:
                 children=[
                     dl.TileLayer(),
                     self.GeoJSON(),
-                    self.Info()
+                    self.Info(),
+                    dl.Pane(id="flowPane", name="flowPane", style={"zIndex": 610})  # Custom pane for flows with required 'name'
                 ], 
                 center=self.center,  # Centro do mapa
                 minZoom=11.4,  # Zoom mínimo permitido
@@ -81,43 +96,269 @@ class Create_Map:
         self.app = app
         self.register_callbacks()
 
-    def add_markers(self, data: pd.DataFrame):
-        _markers = data
+    def add_markers(self, file: json, level: str):
+
+        LEVEL = {
+            "1": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
+            "2": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png",
+            "3": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+            "4": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png",
+            "5": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png",
+            "6": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-grey.png"
+        }
         markers = []
-        for idx, row in _markers.iterrows():
-            I_icon_url = {
-                # "1":  "assets/hospital-location-stroke-icon-by-Vexels.png",
-                "1": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
-                "2": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png",
-                "3": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
-            }
-            icon = dict(iconUrl=I_icon_url.get(LEVEL.get(row['SIGLA_CATEGORIA'])))
-            marker = dl.Marker( 
-                position=[row.geometry.y, row.geometry.x],
-                icon = icon,
+        for marker in file:
+            m = dl.Marker(
+                position=[marker["latitude"], marker["longitude"]],
+                icon={
+                    "iconUrl": LEVEL.get(level),
+                    "iconSize": [20, 33],   # Reduced marker size
+                    "iconAnchor": [10, 33]  # Alignment for the reduced icon
+                },
                 children=[
-                    dl.Tooltip(row['NOME']),
+                    dl.Tooltip(marker["name"]),
                     dl.Popup([
-                        html.H4(row['NOME']),
-                        html.P(f"Categoria: {row['CATEGORIA']}"),
-                        html.P(f"Endereço:  {row['TIPO_LOGRADOURO']} {row['LOGRADOURO']}, {row['NUMERO_IMOVEL']}"),
-                        html.P(f"Bairro:    {row['NOME_BAIRRO_POPULAR']}"),
-                        html.P(f"Telefone:  {row['TELEFONE']}")
+                        html.H4(marker["name"])
+                        # ...additional marker info if needed...
                     ])
                 ]
             )
-            markers.append(marker)
+            markers.append(m)
         self.app.layout.children[0].children.append(dl.LayerGroup(markers))
+        
+
     def register_callbacks(self):
         @self.app.callback(Output("info", "children"), Input("geojson", "hoverData"))
         def info_hover(feature):
             return self.Info(feature).children
+
+    def add_flow_lines(self):
+        with open("P.O Saude/Resultado/flow_results.json", encoding="utf-8") as f:
+            flows = json.load(f)
+        
+        marker_data = {}
+        for lvl in ["1", "2", "3"]:
+            file = f"P.O Saude/dados_json/EL_{lvl}.json"
+            with open(file, encoding='utf-8') as f:
+                markers = json.load(f)
+            marker_data[lvl] = {m["name"]: [m["latitude"], m["longitude"]] for m in markers}
+        
+        # Load new markers for levels "4", "5", "6" (mapped from new_locations.json)
+        new_unit_map = {"1": "4", "2": "5", "3": "6"}
+        try:
+            with open("new_locations.json", encoding="utf-8") as f:
+                saved_names = json.load(f)
+        except:
+            saved_names = {}
+        for key, new_level in new_unit_map.items():
+            names = saved_names.get(key, [])
+            if names:
+                coord_file = f"P.O Saude/dados_json/novas_unidades_nivel_{key}.json"
+                with open(coord_file, encoding="utf-8") as f:
+                    new_markers = json.load(f)
+                filtered = [m for m in new_markers if m["name"] in names]
+                marker_data[new_level] = {m["name"]: [m["latitude"], m["longitude"]] for m in filtered}
+            else:
+                marker_data[new_level] = {}
+        
+        # Build polygon centroids dict from self.data (assuming property "NOME")
+        polygon_centroids = {}
+        for _, row in self.data.iterrows():
+            centroid = [row.geometry.centroid.y, row.geometry.centroid.x]
+            polygon_centroids[row["NOME"]] = centroid
+        
+        # Compute maximum flow value for scaling line weight
+        all_flow_vals = [flow 
+                         for flows_by_source in flows.values()
+                         for destinations in flows_by_source.values()
+                         for flow in destinations.values()]
+        max_flow = max(all_flow_vals) if all_flow_vals else 1
+        
+        # Color mapping for each flow level
+        color_map = {"1": "green", "2": "yellow", "3": "red"}
+        
+        flow_lines = []
+        # Iterate over each k-level flow and use fallback lookups for new units
+        for k, flows_by_source in flows.items():
+            for source_name, destinations in flows_by_source.items():
+                for dest_name, flow_val in destinations.items():
+                    if k == "1":
+                        src = polygon_centroids.get(source_name)
+                        dst = marker_data.get("1", {}).get(dest_name) or marker_data.get("4", {}).get(dest_name)
+                    elif k == "2":
+                        src = marker_data.get("1", {}).get(source_name) or marker_data.get("4", {}).get(source_name)
+                        dst = marker_data.get("2", {}).get(dest_name) or marker_data.get("5", {}).get(dest_name)
+                    elif k == "3":
+                        src = marker_data.get("2", {}).get(source_name) or marker_data.get("5", {}).get(source_name)
+                        dst = marker_data.get("3", {}).get(dest_name) or marker_data.get("6", {}).get(dest_name)
+                    else:
+                        continue
+                    if src and dst:
+                        # Weight proportional to flow value
+                        weight = 2 + (flow_val / max_flow) * 8
+                        line = dl.Polyline(
+                            positions=[src, dst],
+                            color=color_map.get(k, "blue"),
+                            weight=weight,
+                            opacity=1,
+                            pane="flowPane",   # Specify pane so flows are drawn on top
+                            children=[dl.Tooltip(f"Flow: {flow_val}")]
+                        )
+                        flow_lines.append(line)
+        flows_layer = dl.LayerGroup(flow_lines)
+        self.app.layout.children[0].children.append(flows_layer)
+
+    def save_map_image(self, output_file="map_image.png"):
+        import matplotlib.pyplot as plt
+        from matplotlib.lines import Line2D
+        # Create figure and axes
+        fig, ax = plt.subplots(figsize=(10,10))
+        # ax.set_axis_off()
+        # fig.tight_layout(pad=0)
+        # Plot polygons with low zorder
+        self.data.plot(ax=ax, color=self.data['color'], edgecolor='Black', alpha=0.3, zorder=0)
+        
+        # Prepare flow lines similarly to add_flow_lines before markers
+        with open("P.O Saude/Resultado/flow_results.json", encoding="utf-8") as f:
+            flows = json.load(f)
+        marker_data = {}
+        for lvl in ["1", "2", "3"]:
+            file = f"P.O Saude/dados_json/EL_{lvl}.json"
+            with open(file, encoding='utf-8') as f:
+                markers = json.load(f)
+            marker_data[lvl] = {m["name"]: [m["latitude"], m["longitude"]] for m in markers}
+        new_unit_map = {"1": "4", "2": "5", "3": "6"}
+        try:
+            with open("P.O Saude/Resultado/new_locations.json", encoding="utf-8") as f:
+                saved_names = json.load(f)
+        except:
+            saved_names = {}
+        for key, new_level in new_unit_map.items():
+            names = saved_names.get(key, [])
+            if names:
+                file = f"P.O Saude/dados_json/novas_unidades_nivel_{key}.json"
+                with open(file, encoding="utf-8") as f:
+                    markers = json.load(f)
+                filtered = [m for m in markers if m["name"] in names]
+                marker_data[new_level] = {m["name"]: [m["latitude"], m["longitude"]] for m in filtered}
+            else:
+                marker_data[new_level] = {}
+        polygon_centroids = {}
+        for _, row in self.data.iterrows():
+            centroid = [row.geometry.centroid.y, row.geometry.centroid.x]
+            polygon_centroids[row["NOME"]] = centroid
+        all_flow_vals = [flow 
+                         for flows_by_source in flows.values()
+                         for destinations in flows_by_source.values()
+                         for flow in destinations.values()]
+        max_flow = max(all_flow_vals) if all_flow_vals else 1
+        flow_color_map = {"1": "green", "2": "yellow", "3": "red"}
+        # Plot flow lines with low zorder so they appear beneath markers
+        for k, flows_by_source in flows.items():
+            for source_name, destinations in flows_by_source.items():
+                for dest_name, flow_val in destinations.items():
+                    if k == "1":
+                        src = polygon_centroids.get(source_name)
+                        dst = marker_data.get("1", {}).get(dest_name) or marker_data.get("4", {}).get(dest_name)
+                    elif k == "2":
+                        src = marker_data.get("1", {}).get(source_name) or marker_data.get("4", {}).get(source_name)
+                        dst = marker_data.get("2", {}).get(dest_name) or marker_data.get("5", {}).get(dest_name)
+                    elif k == "3":
+                        src = marker_data.get("2", {}).get(source_name) or marker_data.get("5", {}).get(source_name)
+                        dst = marker_data.get("3", {}).get(dest_name) or marker_data.get("6", {}).get(dest_name)
+                    else:
+                        continue
+                    if src and dst:
+                        width = 1 + (flow_val / max_flow)
+
+                        ax.plot([src[1], dst[1]], [src[0], dst[0]], linewidth=width, color=flow_color_map.get(k, "blue"), zorder=1)
+        
+        # Define marker colors (levels "1" to "6")
+        marker_colors = {"1": "green", "2": "yellow", "3": "red", "4": "orange", "5": "violet", "6": "grey"}
+        # Plot markers for current units (levels "1", "2", "3") with diamond marker ('D') and high zorder
+        for level in ["1", "2", "3"]:
+            marker_file = f"P.O Saude/dados_json/EL_{level}.json"
+            with open(marker_file, encoding="utf-8") as f:
+                markers = json.load(f)
+            if markers:
+                lats = [m["latitude"] for m in markers]
+                lngs = [m["longitude"] for m in markers]
+                ax.scatter(lngs, lats, marker='D', color=marker_colors[level],
+                           label=f"Unidade de Nivel {level}", s=10, edgecolor="black", zorder=3)
+        
+        # Plot new markers for levels "4", "5", "6" with high zorder
+        for key, new_level in new_unit_map.items():
+            names = saved_names.get(key, [])
+            if names:
+                marker_file = f"P.O Saude/dados_json/novas_unidades_nivel_{key}.json"
+                with open(marker_file, encoding="utf-8") as f:
+                    markers = json.load(f)
+                filtered = [m for m in markers if m["name"] in names]
+                if filtered:
+                    lats = [m["latitude"] for m in filtered]
+                    lngs = [m["longitude"] for m in filtered]
+                    ax.scatter(lngs, lats, color=marker_colors[new_level], label=f"Nova Unidade de Nivel {int(new_level)-3}", s=20, edgecolor="black", zorder=3)
+        
+        # Create custom legend handles for markers and flows
+        legend_elements = []
+        for lvl, color in marker_colors.items():
+            if lvl in ["1", "2", "3"]:
+                legend_elements.append(Line2D([0], [0], marker='D', color='w', label=f"Unidade de Nivel {lvl}",
+                              markerfacecolor=color, markersize=10, markeredgecolor="black"))
+            else:
+                legend_elements.append(Line2D([0], [0], marker='o', color='w', label=f"Nova Unidade de Nivel {int(lvl)-3}",
+                              markerfacecolor=color, markersize=10, markeredgecolor="black"))        
+        for lvl, color in flow_color_map.items():
+            legend_elements.append(Line2D([0], [0], color=color, lw=4, label=f"Fluxo para o nivel {lvl}"))
+        ax.legend(handles=legend_elements, loc="lower right")
+        
+        ax.set_title("Fluxo da Cidade de Belo Horizonte")
+        ax.set_xlabel("Longitude")
+        ax.set_ylabel("Latitude")
+        plt.savefig(output_file, dpi=300)
+        plt.close(fig)
+
+    def save_density_map_image(self, output_file="P.O Saude/Resultado/density_map.png"):
+        import matplotlib.pyplot as plt
+        fig, ax = plt.subplots(figsize=(10,10))
+        # Plot with density column using a colormap and add a colorbar legend
+        self.data.plot(column="QTDPESSOAS", ax=ax, legend=True, cmap="OrRd", edgecolor="black")
+        
+        ax.set_title("Mapa de Densidade Demográfica de Belo Horizonte")
+        
+        
+        plt.savefig(output_file, dpi=300)
+        plt.close(fig)
+
     def run(self):
         self.app.run_server(debug=True)
-        
 
 if __name__ == "__main__":
-    data = Data()
-    mapa = Create_Map(data.get_neighborhood())
-    mapa.add_markers(data.get_health())
-    mapa.run()
+    mapa = Create_Map("P.O Saude/dados_json/bairro_demanda_set.json")
+    for level in ["1", "2", "3"]:
+        file = f"P.O Saude/dados_json/EL_{level}.json"
+        with open(file, 'r', encoding='utf-8') as f:
+            markers_data = json.load(f)
+        mapa.add_markers(markers_data, level)
+
+    
+    with open("P.O Saude/Resultado/new_locations.json", encoding='utf-8') as f:
+        saved_names = json.load(f)  # keys: "1", "2", "3"
+    # Map new_locations keys to marker levels: "1"->"4", "2"->"5", "3"->"6"
+    marker_level_map = {"1": "4", "2": "5", "3": "6"}
+    for level_key, names in saved_names.items():
+        if names:
+            # Load the corresponding coordinate file
+            coord_file = f"P.O Saude/dados_json/novas_unidades_nivel_{level_key}.json"
+            with open(coord_file, encoding='utf-8') as f:
+                coord_markers = json.load(f)  # Expecting list of dicts with keys: name, latitude, longitude
+            # Filter markers to add only those with names in saved_names
+            filtered_markers = [m for m in coord_markers if m["name"] in names]
+            if filtered_markers:
+                mapa.add_markers(filtered_markers, marker_level_map.get(level_key))
+                
+    # Add flow lines for flows defined in flow_results.json
+    mapa.add_flow_lines()
+    mapa.save_density_map_image("P.O Saude/Resultado/density_map.png")
+    mapa.save_map_image("P.O Saude/Resultado/map_image.png")
+    # mapa.run()

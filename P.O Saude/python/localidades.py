@@ -35,6 +35,22 @@ if __name__ == "__main__":
         'dados_json/EL_2.json',
         'dados_json/EL_3.json'
     ]
-
+# Os seguintes itens estão errados para o nivel 1:
+# {
+#         "name": "CENTRO DE SAUDE SAO MIGUEL ARCANJO",
+#         "id": "17 CENTRO DE SAUDE SAO MIGUEL ARCANJO",
+#         "location": "POINT (-43.902752296811045 -19.933459471510677)",
+#         "latitude": -19.933459471510677,
+#         "longitude": -43.902752296811045,
+#         "type": "02 CENTRO DE SAUDE/UNIDADE BASICA"
+#     },
+# {
+#         "name": "MATERNIDADE ODETE VALADARES",
+#         "id": "19 MATERNIDADE ODETE VALADARES",
+#         "location": "POINT (-43.957942603760614 -19.925261563293212)",
+#         "latitude": -19.925261563293212,
+#         "longitude": -43.957942603760614,
+#         "type": "07 HOSPITAL ESPECIALIZADO"
+#     },
     for input_xlsx, output_json in zip(input_files, output_files):
         read_xlsx_and_generate_json(input_xlsx, output_json)
