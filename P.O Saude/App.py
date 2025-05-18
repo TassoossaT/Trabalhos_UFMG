@@ -587,28 +587,16 @@ class Create_Map:
             [Output('team-detail-modal', 'style'),
              Output('team-modal-title', 'children'),
              Output('team-modal-content', 'children')],
-            [Input('markers-layer', 'click_marker'),
-             Input({'type': 'team-detail-btn', 'index': dash.dependencies.ALL}, 'n_clicks')],
-            [State('markers-layer', 'click_marker')]
+            [Input('markers-layer', 'click_marker')]
         )
-        def show_team_details(marker_click, btn_clicks, marker_state):
-            ctx = dash.callback_context
-            trigger_id = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else ""
-            
-            # Check if triggered by a button click
-            if "team-detail-btn" in trigger_id:
-                # Extract facility name from the button ID
-                try:
-                    facility_name = json.loads(trigger_id)['index']
-                except:
-                    return {'display': 'none'}, "", []
-            elif marker_click:
-                # Get name from marker click
-                facility_name = marker_click.get('popup', '')
-            else:
+        def show_team_details(marker_click):
+            if not marker_click:
                 return {'display': 'none'}, "", []
             
+            # Find the clicked facility
+            facility_name = marker_click.get('popup', '')
             if not facility_name:
+                print("No facility name in popup")
                 return {'display': 'none'}, "", []
             
             # Find facility data
@@ -619,6 +607,7 @@ class Create_Map:
                     break
             
             if not facility:
+                print(f"Facility not found: {facility_name}")
                 return {'display': 'none'}, "", []
             
             # Get team data
@@ -626,6 +615,7 @@ class Create_Map:
             
             # If no team data, show appropriate message
             if not team_data:
+                print(f"No team data for {facility_name}")
                 return {'display': 'block'}, f"Informações de Equipe - {facility_name}", [
                     html.Div("Não há dados de equipe disponíveis para esta unidade.", 
                              className="no-data-message")
@@ -638,129 +628,66 @@ class Create_Map:
             additional_team = team_data.get("additional_team", {})
             total_team = team_data.get("total_team", {})
             
-            # Create visualization with comparative bars
-            team_viz = []
-            for role in set(list(original_team.keys()) + list(additional_team.keys()) + list(total_team.keys())):
-                orig_val = original_team.get(role, 0)
-                add_val = additional_team.get(role, 0)
-                total_val = total_team.get(role, 0)
-                
-                # Skip if all zeros
-                if orig_val == 0 and add_val == 0 and total_val == 0:
-                    continue
-                    
-                # Calculate percentages for bar widths
-                max_val = max(orig_val, add_val, total_val, 1)  # Avoid divide by zero
-                orig_pct = (orig_val / max_val) * 100
-                add_pct = (add_val / max_val) * 100
-                total_pct = (total_val / max_val) * 100
-                
-                team_viz.append(html.Div([
-                    html.Div([
-                        html.Strong(f"{role.capitalize()}: ", style={'width': '100px', 'display': 'inline-block'}),
-                        html.Div([
-                            html.Div(style={
-                                'backgroundColor': '#2ecc71',
-                                'width': f'{orig_pct}%',
-                                'height': '15px',
-                                'display': 'inline-block',
-                                'position': 'relative'
-                            }),
-                            html.Span(f"{orig_val:.1f}", style={
-                                'position': 'absolute',
-                                'right': '-30px',
-                                'top': '-2px',
-                                'fontSize': '12px'
-                            })
-                        ], style={'position': 'relative', 'margin': '5px 0', 'width': '80%', 'display': 'inline-block'}),
-                    ], style={'display': 'flex', 'alignItems': 'center'}),
-                    
-                    html.Div([
-                        html.Strong("Adicional: ", style={'width': '100px', 'display': 'inline-block', 'color': '#e74c3c'}),
-                        html.Div([
-                            html.Div(style={
-                                'backgroundColor': '#e74c3c',
-                                'width': f'{add_pct}%',
-                                'height': '15px',
-                                'display': 'inline-block',
-                                'position': 'relative'
-                            }),
-                            html.Span(f"{add_val:.1f}", style={
-                                'position': 'absolute',
-                                'right': '-30px',
-                                'top': '-2px',
-                                'fontSize': '12px'
-                            })
-                        ], style={'position': 'relative', 'margin': '5px 0', 'width': '80%', 'display': 'inline-block'}),
-                    ], style={'display': 'flex', 'alignItems': 'center', 'marginBottom': '15px'}),
-                ], style={'marginBottom': '20px'}))
-            
             content = html.Div([
                 html.Div([
-                    html.H4("Resumo da Equipe", style={'marginBottom': '15px', 'color': '#2c3e50'}),
-                    html.Div([
-                        html.Div([
-                            html.Strong("Profissionais Originais:"),
-                            html.Span(f" {sum(original_team.values()):.1f}", style={'fontSize': '18px', 'color': '#2ecc71'})
-                        ], style={'flex': '1', 'textAlign': 'center', 'padding': '10px', 'backgroundColor': '#f8f9fa', 'borderRadius': '5px'}),
-                        html.Div([
-                            html.Strong("Adicionais:"),
-                            html.Span(f" {sum(additional_team.values()):.1f}", style={'fontSize': '18px', 'color': '#e74c3c'})
-                        ], style={'flex': '1', 'textAlign': 'center', 'padding': '10px', 'backgroundColor': '#f8f9fa', 'borderRadius': '5px', 'margin': '0 10px'}),
-                        html.Div([
-                            html.Strong("Total:"),
-                            html.Span(f" {sum(total_team.values()):.1f}", style={'fontSize': '18px', 'color': '#3498db'})
-                        ], style={'flex': '1', 'textAlign': 'center', 'padding': '10px', 'backgroundColor': '#f8f9fa', 'borderRadius': '5px'})
-                    ], style={'display': 'flex', 'marginBottom': '20px'})
-                ], className="team-summary-section"),
-                
-                html.Hr(style={'margin': '20px 0'}),
+                    html.H4("Equipe Original"),
+                    html.Table([
+                        html.Thead(html.Tr([
+                            html.Th("Cargo"),
+                            html.Th("Quantidade")
+                        ])),
+                        html.Tbody([
+                            html.Tr([html.Td(role), html.Td(f"{count:.1f}")])
+                            for role, count in original_team.items()
+                        ])
+                    ], className="team-table")
+                ], className="team-section"),
                 
                 html.Div([
-                    html.H4("Detalhamento por Cargo", style={'marginBottom': '15px', 'color': '#2c3e50'}),
-                    html.Div(team_viz, className="team-visualization")
-                ], className="team-detail-section"),
-                
-                html.Hr(style={'margin': '20px 0'}),
+                    html.H4("Equipe Adicional"),
+                    html.Table([
+                        html.Thead(html.Tr([
+                            html.Th("Cargo"),
+                            html.Th("Quantidade")
+                        ])),
+                        html.Tbody([
+                            html.Tr([html.Td(role), html.Td(f"{count:.1f}")])
+                            for role, count in additional_team.items()
+                        ])
+                    ], className="team-table")
+                ], className="team-section"),
                 
                 html.Div([
-                    html.H4("Informações de Utilização", style={'marginBottom': '15px', 'color': '#2c3e50'}),
-                    html.Div([
-                        html.Div([
-                            html.P([
-                                html.Strong("Capacidade: "), 
-                                f"{facility.get('capacity', 'N/A'):.1f}" if isinstance(facility.get('capacity'), (int, float)) 
-                                else facility.get('capacity', 'N/A')
-                            ]),
-                            html.P([
-                                html.Strong("Uso: "), 
-                                f"{facility.get('usage', 'N/A'):.1f}" if isinstance(facility.get('usage'), (int, float))
-                                else facility.get('usage', 'N/A')
-                            ]),
-                        ], style={'flex': '1'}),
-                        html.Div([
-                            html.P([
-                                html.Strong("Utilização: "), 
-                                f"{facility.get('usage_pct', 'N/A'):.1f}%" if isinstance(facility.get('usage_pct'), (int, float))
-                                else f"{facility.get('usage_pct', 'N/A')}%"
-                            ]),
-                            # Add a progress bar for utilization
-                            html.Div([
-                                html.Div(style={
-                                    'width': f"{min(100, float(facility.get('usage_pct', 0))):.1f}%" if isinstance(facility.get('usage_pct'), (int, float)) else "0%",
-                                    'backgroundColor': '#3498db',
-                                    'height': '100%',
-                                    'borderRadius': '3px'
-                                })
-                            ], style={
-                                'width': '100%',
-                                'backgroundColor': '#ecf0f1',
-                                'height': '15px',
-                                'borderRadius': '3px',
-                                'marginTop': '5px'
-                            })
-                        ], style={'flex': '1'})
-                    ], style={'display': 'flex', 'gap': '20px'})
+                    html.H4("Equipe Total"),
+                    html.Table([
+                        html.Thead(html.Tr([
+                            html.Th("Cargo"),
+                            html.Th("Quantidade")
+                        ])),
+                        html.Tbody([
+                            html.Tr([html.Td(role), html.Td(f"{count:.1f}")])
+                            for role, count in total_team.items()
+                        ])
+                    ], className="team-table")
+                ], className="team-section"),
+                
+                html.Div([
+                    html.H4("Informações de Utilização"),
+                    html.P([
+                        html.Strong("Capacidade: "), 
+                        f"{facility.get('capacity', 'N/A'):.1f}" if isinstance(facility.get('capacity'), (int, float)) 
+                        else facility.get('capacity', 'N/A')
+                    ]),
+                    html.P([
+                        html.Strong("Uso: "), 
+                        f"{facility.get('usage', 'N/A'):.1f}" if isinstance(facility.get('usage'), (int, float))
+                        else facility.get('usage', 'N/A')
+                    ]),
+                    html.P([
+                        html.Strong("Utilização: "), 
+                        f"{facility.get('usage_pct', 'N/A'):.1f}%" if isinstance(facility.get('usage_pct'), (int, float))
+                        else f"{facility.get('usage_pct', 'N/A')}%"
+                    ])
                 ], className="usage-section")
             ])
             
@@ -941,212 +868,192 @@ class Create_Map:
                     y=['usage', 'capacity'],
                     labels={'value': 'Capacidade/Uso', 'name': 'Unidade', 'variable': 'Medida'},
                     color_discrete_map={'usage': '#3498db', 'capacity': '#95a5a6'},
-                    barmode='overlay'    html.H5("Equipe:", style={'fontSize': '16px', 'color': '#3498db', 'marginBottom': '8px', 'marginTop': '15px'}),
-                )da equipe", 
+                    barmode='overlay'
+                )
                 usage_fig.update_layout(
                     margin=dict(l=20, r=20, t=30, b=100),
-                    legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5),popup_content.extend(team_section)
-                    xaxis_tickangle=-45ignificant roles (up to 2) for preview
+                    legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5),
+                    xaxis_tickangle=-45
                 )
-            else:team_data.get('total_team'), dict):ty.get("longitude", 0))
-                # Create empty figure if no datax: x[1], reverse=True)[:2]
+            else:
+                # Create empty figure if no data
                 usage_fig = go.Figure()
                 usage_fig.update_layout(
                     title="Sem dados de utilização disponíveis",
-                    xaxis=dict(showticklabels=False),x'}),
+                    xaxis=dict(showticklabels=False),
                     yaxis=dict(showticklabels=False)
                 )
-                             style={'fontSize': '13px', 'margin': '3px 0', 'fontWeight': 'bold'}),r_children.append(dl.Popup(popup_div))
-            return total_card, existing_card, new_card, total_cost_card, hospital_cost_card, logistics_cost_card, cost_pie, dist_fig, usage_fig {additional_members:.1f}" if additional_members > 0 else "Sem adições de equipe", 
-                          style={'fontSize': '13px', 'margin': '3px 0', 'color': '#e74c3c' if additional_members > 0 else '#7f8c8d'})level = facility.get('level')
+                
+            return total_card, existing_card, new_card, total_cost_card, hospital_cost_card, logistics_cost_card, cost_pie, dist_fig, usage_fig
+        
         # Update the map markers with clickable facilities
-        @self.app.callback(', '.join(significant_roles)}" if significant_roles else "",
-            [Output('markers-layer', 'children'),                  style={'fontSize': '13px', 'margin': '3px 0'})    position=[lat, lon],
-             Output('flows-layer', 'children')],ackgroundColor': '#f8f9fa', 'padding': '10px', 'borderRadius': '5px', 'marginBottom': '8px'}),
-            [Input('apply-filters-btn', 'n_clicks'),        html.Div([        "iconUrl": LEVEL.get(level),
-             Input('reset-filters-btn', 'n_clicks')],ipe", id={'type': 'team-detail-btn', 'index': facility.get('name', '')},
+        @self.app.callback(
+            [Output('markers-layer', 'children'),
+             Output('flows-layer', 'children')],
+            [Input('apply-filters-btn', 'n_clicks'),
+             Input('reset-filters-btn', 'n_clicks')],
             [State('level-filter', 'value'),
-             State('type-filter', 'value'),                        'backgroundColor': '#3498db',    },
+             State('type-filter', 'value'),
              State('show-flows', 'value')]
         )
-        def update_map(apply_clicks, reset_clicks, selected_levels, selected_types, show_flows):                        'padding': '5px 10px',markers.append(m)
-            def is_facility_visible(facility, selected_levels, selected_types):erRadius': '4px',
-                if facility.get('type') == 'Existente':                        'fontSize': '12px',t(f"Error creating marker for facility: {e}")
-                    return facility.get('level') in selected_levels and facility.get('type') in selected_types          'cursor': 'pointer',
-                elif facility.get('type') == 'Nova':'width': '100%'
-                    original_level = facility.get('original_level')            })
-                    return original_level in selected_levels and facility.get('type') in selected_typeser'})
+        def update_map(apply_clicks, reset_clicks, selected_levels, selected_types, show_flows):
+            def is_facility_visible(facility, selected_levels, selected_types):
+                if facility.get('type') == 'Existente':
+                    return facility.get('level') in selected_levels and facility.get('type') in selected_types
+                elif facility.get('type') == 'Nova':
+                    original_level = facility.get('original_level')
+                    return original_level in selected_levels and facility.get('type') in selected_types
                 return False
-            section)dst_name, selected_levels, selected_types):
-            markers = []  # Initialize the markers listel of the flow isn't selected, don't show it
-            LEVEL = {titude", 0))
-                "1": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",on = float(facility.get("longitude", 0))   return False
+            
+            markers = []  # Initialize the markers list
+            LEVEL = {
+                "1": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
                 "2": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png",
-                "3": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",n = []
+                "3": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
                 "4": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png",
-                "5": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png",tip_text = str(facility.get("name", ""))ors = {
-                "6": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-grey.png"            marker_children.append(dl.Tooltip(tooltip_text, permanent=False, direction="top"))            "1": "#2ecc71",  # Green for Demand → Level 1 (primary)
-            }#f1c40f",  # Yellow for Level 1 → Level 2 (secondary)
-            content, style={'minWidth': '200px', 'maxWidth': '300px'})Level 2 → Level 3 (tertiary)
-            for facility in self.facilities_data:    marker_children.append(dl.Popup(popup_div))}
+                "5": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png",
+                "6": "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-grey.png"
+            }
+            
+            for facility in self.facilities_data:
                 try:
                     if is_facility_visible(facility, selected_levels, selected_types):
                         popup_content = [
-                            html.H4(str(facility.get("name", "")), style={'color': '#2c3e50', 'marginBottom': '10px', 'fontSize': '18px'}),e, destinations in flows_by_source.items():
-                            html.P(f"Unidade de {'Nova ' if facility.get('type') == 'Nova' else ''}Nível {facility.get('original_level', facility.get('level'))}",n=[lat, lon],isinstance(destinations, dict):
-                                  style={'fontSize': '14px', 'marginBottom': '15px'})        icon={                for dest_name, flow_val in destinations.items():
-                        ]ame, selected_levels, selected_types):
-                        onSize": [20, 33],         source_coords = None
+                            html.H4(str(facility.get("name", "")), style={'color': '#2c3e50', 'marginBottom': '10px', 'fontSize': '18px'}),
+                            html.P(f"Unidade de {'Nova ' if facility.get('type') == 'Nova' else ''}Nível {facility.get('original_level', facility.get('level'))}",
+                                  style={'fontSize': '14px', 'marginBottom': '15px'})
+                        ]
+                        
                         if 'capacity' in facility and facility['capacity'] != 'N/A':
                             usage_section = [
                                 html.H5("Utilização:", style={'fontSize': '16px', 'color': '#3498db', 'marginBottom': '8px'}),
-                                html.Div([   )                       if k == "1" and source_name in self.neighborhood_coords:
-                                    html.P(f"Capacidade: {facility['capacity']:.2f}" if isinstance(facility['capacity'], (int, float)) else f"Capacidade: {facility['capacity']}",    markers.append(m)                            source_coords = [
-                                          style={'fontSize': '13px', 'margin': '3px 0'}),),me].get('latitude', 0)), 
-                                    html.P(f"Atendimentos: {facility['usage']:.2f}" if isinstance(facility['usage'], (int, float)) else f"Atendimentos: {facility['usage']}",r for facility: {e}")    float(self.neighborhood_coords[source_name].get('longitude', 0))
-                                          style={'fontSize': '13px', 'margin': '3px 0'}),),
+                                html.Div([
+                                    html.P(f"Capacidade: {facility['capacity']:.2f}" if isinstance(facility['capacity'], (int, float)) else f"Capacidade: {facility['capacity']}",
+                                            style={'fontSize': '13px', 'margin': '3px 0'}),
+                                    html.P(f"Atendimentos: {facility['usage']:.2f}" if isinstance(facility['usage'], (int, float)) else f"Atendimentos: {facility['usage']}",
+                                            style={'fontSize': '13px', 'margin': '3px 0'}),
                                     html.P(f"% de Uso: {facility['usage_pct']:.2f}%" if isinstance(facility['usage_pct'], (int, float)) else f"% de Uso: {facility['usage_pct']}",
-                                          style={'fontSize': '13px', 'margin': '3px 0'})})
+                                            style={'fontSize': '13px', 'margin': '3px 0'})
                                 ], style={'backgroundColor': '#f8f9fa', 'padding': '10px', 'borderRadius': '5px'})
                             ]
-                            popup_content.extend(usage_section), selected_levels, selected_types):_coords = [float(facility.get('latitude', 0)), float(facility.get('longitude', 0))]
-                            e flow isn't selected, don't show it            break
-                        # Add team information if available with more details
-                        if 'team_data' in facility:
-                            team_data = facility['team_data']
+                            popup_content.extend(usage_section)
                             
-                            # Calculate total team members (sum of all roles)
-                            total_members = sum(team_data.get('total_team', {}).values()) if isinstance(team_data.get('total_team'), dict) else 0})
-                            additional_members = sum(team_data.get('additional_team', {}).values()) if isinstance(team_data.get('additional_team'), dict) else 0
-                             for Level 1 → Level 2 (secondary)y create the flow line if both coordinates were found
+                        # Add team information if available
+                        if 'team_data' in facility:
                             team_section = [
                                 html.H5("Equipe:", style={'fontSize': '16px', 'color': '#3498db', 'marginBottom': '8px', 'marginTop': '15px'}),
-                                html.Div([
-                                    html.P(f"Total de profissionais: {total_members:.1f}", s():Error, TypeError):
-                                          style={'fontSize': '13px', 'margin': '3px 0', 'fontWeight': 'bold'}),els:        flow_value = 1.0
-                                    html.P(f"Equipe adicional: {additional_members:.1f}" if additional_members > 0 else "Sem adições de equipe", 
-                                          style={'fontSize': '13px', 'margin': '3px 0', 'color': '#e74c3c' if additional_members > 0 else '#7f8c8d'})al level key from the data
-                                ], style={'backgroundColor': '#f8f9fa', 'padding': '10px', 'borderRadius': '5px', 'marginBottom': '8px'}),loop
-                                html.P("Clique no marcador para ver detalhes completos da equipe", 
-                                      style={'fontSize': '13px', 'fontStyle': 'italic', 'color': '#7f8c8d', 'textAlign': 'center'}) = None
-                            ]dest_coords = None    # Scale line width more conservatively (divide by 100 instead of 50)
+                                html.P("Clique no marcador para ver detalhes da equipe", 
+                                        style={'fontSize': '13px', 'fontStyle': 'italic', 'color': '#7f8c8d'})
+                            ]
                             popup_content.extend(team_section)
-                        borhood (demand point)
-                        lat = float(facility.get("latitude", 0))"1" and source_name in self.neighborhood_coords:eate tooltip text showing flow details
+                        
+                        lat = float(facility.get("latitude", 0))
                         lon = float(facility.get("longitude", 0))
-                        rds[source_name].get('latitude', 0)), 
-                        marker_children = []borhood_coords[source_name].get('longitude', 0))e with appropriate styling
-                        ]line = dl.Polyline(
+                        
+                        marker_children = []
+                        
                         tooltip_text = str(facility.get("name", ""))
                         marker_children.append(dl.Tooltip(tooltip_text, permanent=False, direction="top"))
                         
-                        popup_div = html.Div(popup_content, style={'minWidth': '200px', 'maxWidth': '300px'})    if facility.get('name') == source_name:    opacity=1.0,       # Full opacity (was 0.7)
-                        marker_children.append(dl.Popup(popup_div))acility.get('longitude', 0))]
+                        popup_div = html.Div(popup_content, style={'minWidth': '200px', 'maxWidth': '300px'})
+                        marker_children.append(dl.Popup(popup_div))
                         
-                        level = facility.get('level')children=[dl.Tooltip(tooltip_text)]
+                        level = facility.get('level')
                         
                         m = dl.Marker(
-                            position=[lat, lon],if facility.get('name') == dest_name:
-                            icon={e', 0)), float(facility.get('longitude', 0))]
+                            position=[lat, lon],
+                            icon={
                                 "iconUrl": LEVEL.get(level),
                                 "iconSize": [20, 33],
-                                "iconAnchor": [10, 33]nd
-                            },coords:
+                                "iconAnchor": [10, 33]
+                            },
                             children=marker_children
-                        )oat(flow_val) if flow_val and not isinstance(flow_val, bool) else 1.0
-                        markers.append(m)TypeError):
+                        )
+                        markers.append(m)
                 except Exception as e:
                     print(f"Error creating marker for facility: {e}")
-                    continuee - always use the original level key from the data                                                # not the filtered key from the outer loop                                                flow_color = flow_colors.get(k, "#9b59b6")  # Added fallback color                                                                                                # Scale line width more conservatively (divide by 100 instead of 50)                                                line_width = max(0.7, min(5, 0.7 + (flow_value / 100)))                                                                                                # Create tooltip text showing flow details                                                tooltip_text = f"Fluxo: {source_name} → {dest_name} ({flow_value:.2f})"                                                                                                # Create the polyline with appropriate styling                                                line = dl.Polyline(                                                    positions=[source_coords, dest_coords],                                                    color=flow_color,  # Use the correct level color
-                          weight=line_width,
-            flow_lines = []ty=1.0,       # Full opacity (was 0.7)
-            if show_flows and 'show' in show_flows:                                        dashArray=None,
-                try:              pane="flowPane",
-                    def should_draw_flow(k, src_name, dst_name, selected_levels, selected_types):                                            children=[dl.Tooltip(tooltip_text)]
-                        # If the level of the flow isn't selected, don't show it                              )
-                        if k not in selected_levels:         flow_lines.append(line)
-                            return False                except Exception as e:
-                        return Truef"Error generating flows: {e}")
+                    continue
+            
+            flow_lines = []
+            if show_flows and 'show' in show_flows:
+                try:
+                    def should_draw_flow(k, src_name, dst_name, selected_levels, selected_types):
+                        # If the level of the flow isn't selected, don't show it
+                        if k not in selected_levels:
+                            return False
+                        return True
                     
-                    # Define colors per level - match the marker colorsturn markers, flow_lines
-                    flow_colors = {    
-                        "1": "#2ecc71",  # Green for Demand → Level 1 (primary)    def run(self):
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```    mapa.run()    mapa = Create_Map("P.O Saude/dados_json/bairro_demanda_set.json")if __name__ == "__main__":        self.app.run_server(debug=True)    def run(self):                    return markers, flow_lines                                print(f"Error generating flows: {e}")                except Exception as e:                                                flow_lines.append(line)                                                )                                                    children=[dl.Tooltip(tooltip_text)]                                                    pane="flowPane",                                                    dashArray=None,                                                    opacity=1.0,       # Full opacity (was 0.7)                                                    weight=line_width,                                                    color=flow_color,  # Use the correct level color                                                    positions=[source_coords, dest_coords],                                                line = dl.Polyline(                                                # Create the polyline with appropriate styling                                                                                                tooltip_text = f"Fluxo: {source_name} → {dest_name} ({flow_value:.2f})"                                                # Create tooltip text showing flow details                                                                                                line_width = max(0.7, min(5, 0.7 + (flow_value / 100)))                                                # Scale line width more conservatively (divide by 100 instead of 50)                                                                                                flow_color = flow_colors.get(k, "#9b59b6")  # Added fallback color                                                # not the filtered key from the outer loop                                                # This is the fixed line - always use the original level key from the data                                                                                                    flow_value = 1.0                                                except (ValueError, TypeError):                                                    flow_value = float(flow_val) if flow_val and not isinstance(flow_val, bool) else 1.0                                                try:                                            if source_coords and dest_coords:                                            # Only create the flow line if both coordinates were found                                                                                                break                                                    dest_coords = [float(facility.get('latitude', 0)), float(facility.get('longitude', 0))]                                                if facility.get('name') == dest_name:                                            for facility in self.facilities_data:                                            # Look for destination facility coordinates                                                                                                    break                                                        source_coords = [float(facility.get('latitude', 0)), float(facility.get('longitude', 0))]                                                    if facility.get('name') == source_name:                                                for facility in self.facilities_data:                                            else:                                            # For other levels - source is a facility                                                ]                                                    float(self.neighborhood_coords[source_name].get('longitude', 0))                                                    float(self.neighborhood_coords[source_name].get('latitude', 0)),                                                 source_coords = [                                            if k == "1" and source_name in self.neighborhood_coords:                                            # For level 1 - source is a neighborhood (demand point)                                                                                        dest_coords = None                                            source_coords = None                                        if should_draw_flow(k, source_name, dest_name, selected_levels, selected_types):                                    for dest_name, flow_val in destinations.items():                                if isinstance(destinations, dict):                            for source_name, destinations in flows_by_source.items():                        if k in selected_levels:                    for k, flows_by_source in self.flows.items():                                        }                        "3": "#e74c3c",  # Red for Level 2 → Level 3 (tertiary)                        "2": "#f1c40f",  # Yellow for Level 1 → Level 2 (secondary)        self.app.run_server(debug=True)
+                    # Define colors per level - match the marker colors
+                    flow_colors = {
+                        "1": "#2ecc71",  # Green for Demand → Level 1 (primary)
+                        "2": "#f1c40f",  # Yellow for Level 1 → Level 2 (secondary)
+                        "3": "#e74c3c",  # Red for Level 2 → Level 3 (tertiary)
+                    }
+                    
+                    for k, flows_by_source in self.flows.items():
+                        if k in selected_levels:
+                            for source_name, destinations in flows_by_source.items():
+                                if isinstance(destinations, dict):
+                                    for dest_name, flow_val in destinations.items():
+                                        if should_draw_flow(k, source_name, dest_name, selected_levels, selected_types):
+                                            source_coords = None
+                                            dest_coords = None
+                                            
+                                            # For level 1 - source is a neighborhood (demand point)
+                                            if k == "1" and source_name in self.neighborhood_coords:
+                                                source_coords = [
+                                                    float(self.neighborhood_coords[source_name].get('latitude', 0)), 
+                                                    float(self.neighborhood_coords[source_name].get('longitude', 0))
+                                                ]
+                                            # For other levels - source is a facility
+                                            else:
+                                                for facility in self.facilities_data:
+                                                    if facility.get('name') == source_name:
+                                                        source_coords = [float(facility.get('latitude', 0)), float(facility.get('longitude', 0))]
+                                                        break
+                                            
+                                            # Look for destination facility coordinates
+                                            for facility in self.facilities_data:
+                                                if facility.get('name') == dest_name:
+                                                    dest_coords = [float(facility.get('latitude', 0)), float(facility.get('longitude', 0))]
+                                                    break
+                                            
+                                            # Only create the flow line if both coordinates were found
+                                            if source_coords and dest_coords:
+                                                try:
+                                                    flow_value = float(flow_val) if flow_val and not isinstance(flow_val, bool) else 1.0
+                                                except (ValueError, TypeError):
+                                                    flow_value = 1.0
+                                                
+                                                # This is the fixed line - always use the original level key from the data
+                                                # not the filtered key from the outer loop
+                                                flow_color = flow_colors.get(k, "#9b59b6")  # Added fallback color
+                                                
+                                                # Scale line width more conservatively (divide by 100 instead of 50)
+                                                line_width = max(0.7, min(5, 0.7 + (flow_value / 100)))
+                                                
+                                                # Create tooltip text showing flow details
+                                                tooltip_text = f"Fluxo: {source_name} → {dest_name} ({flow_value:.2f})"
+                                                
+                                                # Create the polyline with appropriate styling
+                                                line = dl.Polyline(
+                                                    positions=[source_coords, dest_coords],
+                                                    color=flow_color,  # Use the correct level color
+                                                    weight=line_width,
+                                                    opacity=1.0,       # Full opacity (was 0.7)
+                                                    dashArray=None,
+                                                    pane="flowPane",
+                                                    children=[dl.Tooltip(tooltip_text)]
+                                                )
+                                                flow_lines.append(line)
+                except Exception as e:
+                    print(f"Error generating flows: {e}")
+            
+            return markers, flow_lines
+        
+    def run(self):
+        self.app.run_server(debug=True)
 
 if __name__ == "__main__":
     mapa = Create_Map("P.O Saude/dados_json/bairro_demanda_set.json")
     mapa.run()
-```
