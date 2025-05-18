@@ -248,6 +248,195 @@ class Hierarchical:
             print(f"SHC: {shc_total} -> {shc_total / U[2] * 100:.2f}%")
             print(f"THC: {thc_total} -> {thc_total / U[3] * 100:.2f}%")
 
+# print("==================================")
+# print("Municipality: Pop Flow")
+            # print("==================================")
+            # for i in L[0]:
+            #     flow = sum(u[1][(p, i, j)].value() or 0 for p in P for j in L[1])
+            #     print(f"[{i}]: {flow}")
+            # print("==================================")
+            # print("Mun > PHC :(flow)")
+            # print("==================================")
+            # for i in I:
+            #     for j in L[1]:
+            #         flow = sum(u[1][(p, i, j)].value() or 0 for p in P)
+            #         if flow > 0:
+            #             print(f"M[{i} ] > : {flow}")
+            #             print(f"> L[{j} ]: {flow}")
+            # print("==================================")
+            # print("PHC > SHC :(flow)")
+            # print("==================================")
+            # for j in L[1]:
+            #     for j2 in L[2]:
+            #         flow = sum(u[2][(p, j, j2)].value() or 0 for p in P)
+            #         if flow > 0:
+            #             print(f"L[{j} ] > : {flow}")
+            #             print(f"> L[{j2} ]: {flow}")
+            # print("==================================")
+            # print("SHC > THC :(flow)")
+            # print("==================================")
+# for j2 in L[2]:
+            #     for j3 in L[3]:
+            #         flow = sum(u[3][(p, j2, j3)].value() or 0 for p in P)
+            #         if flow > 0:
+            #             print(f"L[{j2} ] > : {flow}")
+            #             print(f"> L[{j3} ]: {flow}")
+            # print("==================================")
+            # print("Health care team (Existing and New*)")
+            # print("==================================")
+            # print("==================================")
+            # print("PHC-Team CNES Flow Lack/Excess")
+            # print("==================================")
+            # for j in EL[1]:
+            #     print(f"L[{j} ]")
+            #     for e in E[1]:
+            #         flow = sum((u[1][(p, i, j)].value() or 0) * MS1[e] for p in P for i in I)
+            #         cnes = CNES1[j][e]
+            #         print(f"[{e}]: {cnes:.2f} {flow:.2f} {flow - cnes:.2f}")
+            # print("==================================")
+            # print("SHC-Team CNES Flow Lack/Excess")
+            # print("==================================")
+            # for j2 in EL[2]:
+            #     print(f"L[{j2} ]")
+            #     for e in E[2]:
+            #         flow = sum((u[2][(p, j, j2)].value() or 0) * MS2[e] for p in P for j in L[1])
+            #         cnes = CNES2[j2][e]
+            #         print(f"[{e}]: {cnes:.2f} {flow:.2f} {flow - cnes:.2f}")
+            # print("==================================")
+            # print("THC-Team CNES Flow Lack/Excess")
+            # print("==================================")
+            # for j3 in EL[3]:
+            #     print(f"L[{j3} ]")
+            #     for e in E[3]:
+            #         flow = sum((u[3][(p, j2, j3)].value() or 0) * MS3[e] for p in P for j2 in L[2])
+            #         cnes = CNES3[j3][e]
+            #         print(f"[{e}]: {cnes:.2f} {flow:.2f} {flow - cnes:.2f}")
+            # print("==================================")
+            # print("Municipality: Pop Flow")
+            # print("==================================")
+            # for i in L[0]:
+            #     flow = sum(u[1][(p, i, j)].value() or 0 for p in P for j in L[1])
+            #     print(f"[{i}]: {flow}")
+            # print("==================================")
+            # print("Mun > PHC :(flow)")
+            # print("==================================")
+            # for i in I:
+            #     for j in L[1]:
+            #         flow = sum(u[1][(p, i, j)].value() or 0 for p in P)
+            #         if flow > 0:
+            #             print(f"M[{i} ] > : {flow}")
+            #             print(f"> L[{j} ]: {flow}")
+            # print("==================================")
+            # print("PHC > SHC :(flow)")
+            # print("==================================")
+            # for j in L[1]:
+            #     for j2 in L[2]:
+            #         flow = sum(u[2][(p, j, j2)].value() or 0 for p in P)
+            #         if flow > 0:
+            #             print(f"L[{j} ] > : {flow}")
+            #             print(f"> L[{j2} ]: {flow}")
+            # print("==================================")
+            # print("SHC > THC :(flow)")
+            # print("==================================")
+# for j2 in L[2]:
+            #     for j3 in L[3]:
+            #         flow = sum(u[3][(p, j2, j3)].value() or 0 for p in P)
+            #         if flow > 0:
+            #             print(f"L[{j2} ] > : {flow}")
+            #             print(f"> L[{j3} ]: {flow}")
+            # print("==================================")
+            # print("Health care team (Existing and New*)")
+            # print("==================================")
+            # print("==================================")
+            # print("PHC-Team CNES Flow Lack/Excess")
+            # print("==================================")
+            # for j in EL[1]:
+            #     print(f"L[{j} ]")
+            #     for e in E[1]:
+            #         flow = sum((u[1][(p, i, j)].value() or 0) * MS1[e] for p in P for i in I)
+            #         cnes = CNES1[j][e]
+            #         print(f"[{e}]: {cnes:.2f} {flow:.2f} {flow - cnes:.2f}")
+            # print("==================================")
+            # print("SHC-Team CNES Flow Lack/Excess")
+            # print("==================================")
+            # for j2 in EL[2]:
+            #     print(f"L[{j2} ]")
+            #     for e in E[2]:
+            #         flow = sum((u[2][(p, j, j2)].value() or 0) * MS2[e] for p in P for j in L[1])
+            #         cnes = CNES2[j2][e]
+            #         print(f"[{e}]: {cnes:.2f} {flow:.2f} {flow - cnes:.2f}")
+            # print("==================================")
+            # print("THC-Team CNES Flow Lack/Excess")
+            # print("==================================")
+            # for j3 in EL[3]:
+            #     print(f"L[{j3} ]")
+            #     for e in E[3]:
+            #         flow = sum((u[3][(p, j2, j3)].value() or 0) * MS3[e] for p in P for j2 in L[2])
+            #         cnes = CNES3[j3][e]
+            #         print(f"[{e}]: {cnes:.2f} {flow:.2f} {flow - cnes:.2f}")
+            # print("==================================")
+            # print("Municipality: Pop Flow")
+            # print("==================================")
+            # for i in L[0]:
+            #     flow = sum(u[1][(p, i, j)].value() or 0 for p in P for j in L[1])
+            #     print(f"[{i}]: {flow}")
+            # print("==================================")
+            # print("Mun > PHC :(flow)")
+            # print("==================================")
+            # for i in I:
+            #     for j in L[1]:
+            #         flow = sum(u[1][(p, i, j)].value() or 0 for p in P)
+            #         if flow > 0:
+            #             print(f"M[{i} ] > : {flow}")
+            #             print(f"> L[{j} ]: {flow}")
+            # print("==================================")
+            # print("PHC > SHC :(flow)")
+            # print("==================================")
+            # for j in L[1]:
+            #     for j2 in L[2]:
+            #         flow = sum(u[2][(p, j, j2)].value() or 0 for p in P)
+            #         if flow > 0:
+            #             print(f"L[{j} ] > : {flow}")
+            #             print(f"> L[{j2} ]: {flow}")
+            # print("==================================")
+            # print("SHC > THC :(flow)")
+            # print("==================================")
+# for j2 in L[2]:
+            #     for j3 in L[3]:
+            #         flow = sum(u[3][(p, j2, j3)].value() or 0 for p in P)
+            #         if flow > 0:
+            #             print(f"L[{j2} ] > : {flow}")
+            #             print(f"> L[{j3} ]: {flow}")
+            # print("==================================")
+            # print("Health care team (Existing and New*)")
+            # print("==================================")
+            # print("==================================")
+            # print("PHC-Team CNES Flow Lack/Excess")
+            # print("==================================")
+            # for j in EL[1]:
+            #     print(f"L[{j} ]")
+            #     for e in E[1]:
+            #         flow = sum((u[1][(p, i, j)].value() or 0) * MS1[e] for p in P for i in I)
+            #         cnes = CNES1[j][e]
+            #         print(f"[{e}]: {cnes:.2f} {flow:.2f} {flow - cnes:.2f}")
+            # print("==================================")
+            # print("SHC-Team CNES Flow Lack/Excess")
+            # print("==================================")
+            # for j2 in EL[2]:
+            #     print(f"L[{j2} ]")
+            #     for e in E[2]:
+            #         flow = sum((u[2][(p, j, j2)].value() or 0) * MS2[e] for p in P for j in L[1])
+            #         cnes = CNES2[j2][e]
+            #         print(f"[{e}]: {cnes:.2f} {flow:.2f} {flow - cnes:.2f}")
+            # print("==================================")
+            # print("THC-Team CNES Flow Lack/Excess")
+            # print("==================================")
+            # for j3 in EL[3]:
+            #     print(f"L[{j3} ]")
+            #     for e in E[3]:
+            #         flow = sum((u[3][(p, j2, j3)].value() or 0) * MS3[e] for p in P for j2 in L[2])
+            #         cnes = CNES3[j3][e]
+            #         print(f"[{e}]: {cnes:.2f} {flow:.2f} {flow - cnes:.2f}")
             # print("==================================")
             # print("Municipality: Pop Flow")
             # print("==================================")
@@ -311,42 +500,120 @@ class Hierarchical:
             #         flow = sum((u[3][(p, j2, j3)].value() or 0) * MS3[e] for p in P for j2 in L[2])
             #         cnes = CNES3[j3][e]
             #         print(f"[{e}]: {cnes:.2f} {flow:.2f} {flow - cnes:.2f}")
+            # print("==================================")
+            # print("Municipality: Pop Flow")
+            # print("==================================")
+            # for i in L[0]:
+            #     flow = sum(u[1][(p, i, j)].value() or 0 for p in P for j in L[1])
+            #     print(f"[{i}]: {flow}")
+            # print("==================================")
+            # print("Mun > PHC :(flow)")
+            # print("==================================")
+            # for i in I:
+            #     for j in L[1]:
+            #         flow = sum(u[1][(p, i, j)].value() or 0 for p in P)
+            #         if flow > 0:
+            #             print(f"M[{i} ] > : {flow}")
+            #             print(f"> L[{j} ]: {flow}")
+            # print("==================================")
+            # print("PHC > SHC :(flow)")
+            # print("==================================")
+            # for j in L[1]:
+            #     for j2 in L[2]:
+            #         flow = sum(u[2][(p, j, j2)].value() or 0 for p in P)
+            #         if flow > 0:
+            #             print(f"L[{j} ] > : {flow}")
+            #             print(f"> L[{j2} ]: {flow}")
+            # print("==================================")
+            # print("SHC > THC :(flow)")
+            # print("==================================")
+            # for j2 in L[2]:
+            #     for j3 in L[3]:
+            #         flow = sum(u[3][(p, j2, j3)].value() or 0 for p in P)
+            #         if flow > 0:
+            #             print(f"L[{j2} ] > : {flow}")
+            #             print(f"> L[{j3} ]: {flow}")
+            # print("==================================")
+            # print("Health care team (Existing and New*)")
+            # print("==================================")
             print("==================================")
-            print("PHC [p]: Capty Met Use(%)")
+            print("PHC-Team CNES Flow Lack/Excess")
             print("==================================")
-            for j in L[1]:
-                capty = C1[j]
-                met = sum(u[1][(p, i, j)].value() or 0 for p in P for i in I )
-                if met > 0.00001:
-                    print(f"[{j}]: {capty} {met} {met / capty * 100:.2f}%")
+            for j in EL[1]:
+                print(f"L[{j} ]")
+                for e in E[1]:
+                    flow = sum((u[1][(p, i, j)].value() or 0) * MS1[e] for p in P for i in I)
+                    cnes = CNES1[j][e]
+                    print(f"[{e}]: {cnes:.2f} {flow:.2f} {flow - cnes:.2f}")
             print("==================================")
-            print("SHC : Capty Met Use(%)")
-            print("==================================")
-            for j2 in L[2]:
-                capty = C2[j2]
-                met = sum(u[2][(p, j, j2)].value() or 0 for p in P for j in L[1])
-                if met > 0.00001:
-                    print(f"[{j2}]: {capty} {met} {met / capty * 100:.2f}%")
-            print("==================================")
-            print("THC : Capty Met Use(%)")
-            print("==================================")
-            for j3 in L[3]:
-                capty = C3[j3]
-                met = sum(u[3][(p, j2, j3)].value() or 0 for p in P for j2 in L[2])
-                if met > 0.00001:
-                    print(f"[{j3}]: {capty} {met} {met / capty * 100:.2f}%")
-            print("==================================")
-        else:
-            print("No optimal solution found.")
+            # print("SHC-Team CNES Flow Lack/Excess")
+            # print("==================================")
+            # for j2 in EL[2]:
+            #     print(f"L[{j2} ]")
+            #     for e in E[2]:
+            #         flow = sum((u[2][(p, j, j2)].value() or 0) * MS2[e] for p in P for j in L[1])
+            #         cnes = CNES2[j2][e]
+            #         print(f"[{e}]: {cnes:.2f} {flow:.2f} {flow - cnes:.2f}")
+            # print("==================================")
+            # print("THC-Team CNES Flow Lack/Excess")
+            # print("==================================")
+            # for j3 in EL[3]:
+            #     print(f"L[{j3} ]")
+            #     for e in E[3]:
+            #         flow = sum((u[3][(p, j2, j3)].value() or 0) * MS3[e] for p in P for j2 in L[2])
+            #         cnes = CNES3[j3][e]
+            #         print(f"[{e}]: {cnes:.2f} {flow:.2f} {flow - cnes:.2f}")
+        #     print("==================================")
+        #     print("PHC [p]: Capty Met Use(%)")
+        #     print("==================================")
+        #     for j in L[1]:
+        #         capty = C1[j]
+        #         met = sum(u[1][(p, i, j)].value() or 0 for p in P for i in I )
+        #         if met > 0.00001:
+        #             print(f"[{j}]: {capty} {met} {met / capty * 100:.2f}%")
+        #     print("==================================")
+        #     print("SHC : Capty Met Use(%)")
+        #     print("==================================")
+        #     for j2 in L[2]:
+        #         capty = C2[j2]
+        #         met = sum(u[2][(p, j, j2)].value() or 0 for p in P for j in L[1])
+        #         if met > 0.00001:
+        #             print(f"[{j2}]: {capty} {met} {met / capty * 100:.2f}%")
+        #     print("==================================")
+        #     print("THC : Capty Met Use(%)")
+        #     print("==================================")
+        #     for j3 in L[3]:
+        #         capty = C3[j3]
+        #         met = sum(u[3][(p, j2, j3)].value() or 0 for p in P for j2 in L[2])
+        #         if met > 0.00001:
+        #             print(f"[{j3}]: {capty} {met} {met / capty * 100:.2f}%")
+        #     print("==================================")
+        # else:
+        #     print("No optimal solution found.")
 
     def export_model(self, filename="model.lp"):
         self._model.writeLP(filename)
 
     def save_result(self, filename="P.O Saude/Resultado/flow_results.json"):
         I, K, P, E, EL, CL, L = self.I, self.K, self.P, self.E, self.EL, self.CL, self.L
-        u = self.u
+        y, u, l = self.y, self.u, self.l
+        
+        # Use dictionary indexing for level-dependent parameters
+        VC1, VC2, VC3 = self.VC[1], self.VC[2], self.VC[3]
+        CE1, CE2, CE3 = self.CE[1], self.CE[2], self.CE[3]
+        D1, D2, D3 = self.D[1], self.D[2], self.D[3]
+        TC1, TC2, TC3 = self.TC[1], self.TC[2], self.TC[3]
+        FC1, FC2, FC3 = self.FC[1], self.FC[2], self.FC[3]
+        MS1, MS2, MS3 = self.MS[1], self.MS[2], self.MS[3]
+        CNES1, CNES2, CNES3 = self.CNES[1], self.CNES[2], self.CNES[3]
+        C1, C2, C3 = self.C[1], self.C[2], self.C[3]
+        U = self.U
+        
+        result_data = {}
+        
+        # Flow information (existing implementation)
         flow_results = {}
-
+        
         # Level 1: from L[0] to L[1]
         flow_results["1"] = {}
         for origin in L[0]:
@@ -379,9 +646,291 @@ class Hierarchical:
                     tmp[dest] = total_flow
             if tmp:
                 flow_results["3"][origin] = tmp
-
+        
+        result_data["flows"] = flow_results
+        
+        # Cost information
+        costs = {}
+        
+        # Calculate all the costs (from print_solution method)
+        logist_cost = sum(D1[i][j] * TC1[i][j] * (u[1][(p, i, j)].value() or 0) for p in P for i in I for j in L[1]) + \
+                     sum(D2[j][j2] * TC2[j][j2] * (u[2][(p, j, j2)].value() or 0) for p in P for j in L[1] for j2 in L[2]) + \
+                     sum(D3[j2][j3] * TC3[j2][j3] * (u[3][(p, j2, j3)].value() or 0) for p in P for j2 in L[2] for j3 in L[3])
+        
+        fixed_cost_E = sum(FC1[j]* y[1][j].value() for j in EL[1]) + \
+                       sum(FC2[j]* y[2][j].value() for j in EL[2]) + \
+                       sum(FC3[j]* y[3][j].value() for j in EL[3])
+        fixed_cost_E_PHC = sum(FC1[j]* y[1][j].value() for j in EL[1])
+        fixed_cost_E_SHC = sum(FC2[j]* y[2][j].value() for j in EL[2])
+        fixed_cost_E_THC = sum(FC3[j]* y[3][j].value() for j in EL[3])
+        
+        fixed_cost_C = sum(FC1[j1] * (y[1][j1].value() or 0) for j1 in CL[1]) + \
+                      sum(FC2[j2] * (y[2][j2].value() or 0) for j2 in CL[2]) + \
+                      sum(FC3[j3] * (y[3][j3].value() or 0) for j3 in CL[3])
+        fixed_cost_PHC = sum(FC1[j1] * (y[1][j1].value() or 0) for j1 in CL[1])
+        fixed_cost_SHC = sum(FC2[j2] * (y[2][j2].value() or 0) for j2 in CL[2])
+        fixed_cost_THC = sum(FC3[j3] * (y[3][j3].value() or 0) for j3 in CL[3])
+        
+        team_cost = sum(CE1[e] * (y[1][j1].value() or 0) for j1 in EL[1] for e in E[1]) + \
+                   sum(CE2[e] * (y[2][j2].value() or 0) for j2 in EL[2] for e in E[2]) + \
+                   sum(CE3[e] * (y[3][j3].value() or 0) for j3 in EL[3] for e in E[3])
+        tem_c_PHC = sum(CE1[e] * (y[1][j1].value() or 0) for j1 in EL[1] for e in E[1])
+        tem_c_SHC = sum(CE2[e] * (y[2][j2].value() or 0) for j2 in EL[2] for e in E[2])
+        tem_c_THC = sum(CE3[e] * (y[3][j3].value() or 0) for j3 in EL[3] for e in E[3])
+        
+        new_team_cost_C = sum(CE1[e] * (y[1][j1].value() or 0) for j1 in CL[1] for e in E[1]) + \
+                          sum(CE2[e] * (y[2][j2].value() or 0) for j2 in CL[2] for e in E[2]) + \
+                          sum(CE3[e] * (y[3][j3].value() or 0) for j3 in CL[3] for e in E[3])
+        
+        variable_cost = sum(D1[i][j1] * TC1[i][j1] * (u[1][(p, i, j1)].value() or 0) * VC1[p, j1] for p in P for i in I for j1 in L[1]) + \
+                       sum(D2[j1][j2] * TC2[j1][j2] * (u[2][(p, j1, j2)].value() or 0) * VC2[p, j2] for p in P for j1 in L[1] for j2 in L[2]) + \
+                       sum(D3[j2][j3] * TC3[j2][j3] * (u[3][(p, j2, j3)].value() or 0) * VC3[p, j3] for p in P for j2 in L[2] for j3 in L[3])
+        variable_PHC = sum(D1[i][j1] * TC1[i][j1] * (u[1][(p, i, j1)].value() or 0) * VC1[p, j1] for p in P for i in I for j1 in L[1])
+        variable_SHC = sum(D2[j1][j2] * TC2[j1][j2] * (u[2][(p, j1, j2)].value() or 0) * VC2[p, j2] for p in P for j1 in L[1] for j2 in L[2])
+        variable_THC = sum(D3[j2][j3] * TC3[j2][j3] * (u[3][(p, j2, j3)].value() or 0) * VC3[p, j3] for p in P for j2 in L[2] for j3 in L[3])
+        
+        total = logist_cost + fixed_cost_E + fixed_cost_C + new_team_cost_C + variable_cost + team_cost
+        
+        costs["logist_cost"] = float(logist_cost)
+        
+        costs["fixed_cost"] = {
+            "existing": {
+                "total": float(fixed_cost_E),
+                "phc": float(fixed_cost_E_PHC),
+                "shc": float(fixed_cost_E_SHC),
+                "thc": float(fixed_cost_E_THC),
+            },
+            "new": {
+                "total": float(fixed_cost_C),
+                "phc": float(fixed_cost_PHC),
+                "shc": float(fixed_cost_SHC),
+                "thc": float(fixed_cost_THC),
+            }
+        }
+        
+        costs["team_cost"] = {
+            "existing": {
+                "total": float(team_cost),
+                "phc": float(tem_c_PHC),
+                "shc": float(tem_c_SHC),
+                "thc": float(tem_c_THC),
+            },
+            "new": float(new_team_cost_C)
+        }
+        
+        costs["variable_cost"] = {
+            "total": float(variable_cost),
+            "phc": float(variable_PHC),
+            "shc": float(variable_SHC),
+            "thc": float(variable_THC)
+        }
+        
+        costs["hospital_cost"] = float(total - logist_cost)
+        costs["total_cost"] = float(total)
+        
+        result_data["costs"] = costs
+        
+        # Team information
+        team_info = {}
+        team = sum(CNES1[j][e] for j in EL[1] for e in E[1]) + sum(CNES2[j][e] for j in EL[2] for e in E[2]) + sum(CNES3[j][e] for j in EL[3] for e in E[3])
+        team_l = sum(l[k][e,j].value() for k in K for e in E[k] for j in EL[k])
+        new_team_l = sum(l[k][e,j].value() for k in K for e in E[k] for j in CL[k])
+        
+        team_info["existing"] = float(team)
+        team_info["additional"] = float(team_l)
+        team_info["new"] = float(new_team_l)
+        team_info["total"] = float(team + team_l + new_team_l)
+        
+        result_data["team_info"] = team_info
+        
+        # New units information
+        new_units = {}
+        
+        phc_total = sum(y[1][j].value() or 0 for j in CL[1])
+        shc_total = sum(y[2][j].value() or 0 for j in CL[2])
+        thc_total = sum(y[3][j].value() or 0 for j in CL[3])
+        
+        new_units["phc"] = {
+            "count": int(phc_total),
+            "usage_percentage": float(phc_total / U[1] * 100)
+        }
+        new_units["shc"] = {
+            "count": int(shc_total),
+            "usage_percentage": float(shc_total / U[2] * 100)
+        }
+        new_units["thc"] = {
+            "count": int(thc_total),
+            "usage_percentage": float(thc_total / U[3] * 100)
+        }
+        
+        result_data["new_units"] = new_units
+        
+        # Facility capacity utilization
+        facility_usage = {}
+        
+        # PHC facilities
+        phc_usage = {}
+        for j in L[1]:
+            capty = C1[j]
+            met = sum(u[1][(p, i, j)].value() or 0 for p in P for i in I)
+            if met > 0.00001:
+                phc_usage[j] = {
+                    "capacity": float(capty),
+                    "usage": float(met),
+                    "usage_percentage": float(met / capty * 100)
+                }
+        
+        # SHC facilities
+        shc_usage = {}
+        for j2 in L[2]:
+            capty = C2[j2]
+            met = sum(u[2][(p, j, j2)].value() or 0 for p in P for j in L[1])
+            if met > 0.00001:
+                shc_usage[j2] = {
+                    "capacity": float(capty),
+                    "usage": float(met),
+                    "usage_percentage": float(met / capty * 100)
+                }
+        
+        # THC facilities
+        thc_usage = {}
+        for j3 in L[3]:
+            capty = C3[j3]
+            met = sum(u[3][(p, j2, j3)].value() or 0 for p in P for j2 in L[2])
+            if met > 0.00001:
+                thc_usage[j3] = {
+                    "capacity": float(capty),
+                    "usage": float(met),
+                    "usage_percentage": float(met / capty * 100)
+                }
+        
+        facility_usage["phc"] = phc_usage
+        facility_usage["shc"] = shc_usage
+        facility_usage["thc"] = thc_usage
+        
+        result_data["facility_usage"] = facility_usage
+        
+        # Add team variations data for each facility
+        team_variations = {
+            "phc": {},
+            "shc": {},
+            "thc": {}
+        }
+        
+        # Process PHC facilities (level 1)
+        for j in L[1]:
+            original_team = {}
+            additional_team = {}
+            total_team = {}
+            
+            is_existing = j in EL[1]
+            
+            for e in E[1]:
+                # For existing facilities, get the CNES data
+                if is_existing:
+                    original = CNES1[j][e]
+                    additional = l[1][e, j].value() if l[1][e, j].value() else 0
+                    total = original + additional
+                else:
+                    # For new facilities
+                    original = 0
+                    additional = l[1][e, j].value() if l[1][e, j].value() else 0
+                    total = additional
+                
+                # Only add to the results if there's any staff or if it's an existing facility
+                if total > 0 or is_existing:
+                    original_team[e] = float(original)
+                    additional_team[e] = float(additional)
+                    total_team[e] = float(total)
+            
+            # Only add this facility if it has any staff data or if it's used in the solution
+            if (original_team or additional_team) and (j in facility_usage["phc"]):
+                team_variations["phc"][j] = {
+                    "original_team": original_team,
+                    "additional_team": additional_team,
+                    "total_team": total_team
+                }
+        
+        # Process SHC facilities (level 2)
+        for j in L[2]:
+            original_team = {}
+            additional_team = {}
+            total_team = {}
+            
+            is_existing = j in EL[2]
+            
+            for e in E[2]:
+                # For existing facilities, get the CNES data
+                if is_existing:
+                    original = CNES2[j][e]
+                    additional = l[2][e, j].value() if l[2][e, j].value() else 0
+                    total = original + additional
+                else:
+                    # For new facilities
+                    original = 0
+                    additional = l[2][e, j].value() if l[2][e, j].value() else 0
+                    total = additional
+                
+                # Only add to the results if there's any staff or if it's an existing facility
+                if total > 0 or is_existing:
+                    original_team[e] = float(original)
+                    additional_team[e] = float(additional)
+                    total_team[e] = float(total)
+            
+            # Only add this facility if it has any staff data or if it's used in the solution
+            if (original_team or additional_team) and (j in facility_usage["shc"]):
+                team_variations["shc"][j] = {
+                    "original_team": original_team,
+                    "additional_team": additional_team,
+                    "total_team": total_team
+                }
+        
+        # Process THC facilities (level 3)
+        for j in L[3]:
+            original_team = {}
+            additional_team = {}
+            total_team = {}
+            
+            is_existing = j in EL[3]
+            
+            for e in E[3]:
+                # For existing facilities, get the CNES data
+                if is_existing:
+                    original = CNES3[j][e]
+                    additional = l[3][e, j].value() if l[3][e, j].value() else 0
+                    total = original + additional
+                else:
+                    # For new facilities
+                    original = 0
+                    additional = l[3][e, j].value() if l[3][e, j].value() else 0
+                    total = additional
+                
+                # Only add to the results if there's any staff or if it's an existing facility
+                if total > 0 or is_existing:
+                    original_team[e] = float(original)
+                    additional_team[e] = float(additional)
+                    total_team[e] = float(total)
+            
+            # Only add this facility if it has any staff data or if it's used in the solution
+            if (original_team or additional_team) and (j in facility_usage["thc"]):
+                team_variations["thc"][j] = {
+                    "original_team": original_team,
+                    "additional_team": additional_team,
+                    "total_team": total_team
+                }
+        
+        result_data["team_variations"] = team_variations
+        
+        # Add demand information
+        demand_info = {
+            "total_demand": float(sum(self.W[i, p] for i in I for p in P)),
+            "met_demand": float(sum(u[1][(p, i, j)].value() or 0 for p in P for i in I for j in L[1]))
+        }
+        
+        result_data["demand"] = demand_info
+        
         with open(filename, "w", encoding='utf-8') as f:
-            json.dump(flow_results, f, indent=4,  ensure_ascii=False)
+            json.dump(result_data, f, indent=4, ensure_ascii=False)
 
     def save_new_locations(self, filename="P.O Saude/Resultado/new_locations.json"):
         y = self.y

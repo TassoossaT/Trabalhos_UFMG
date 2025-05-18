@@ -50,9 +50,9 @@
     {
         "name": "MATERNIDADE ODETE VALADARES",
         "id": "19 MATERNIDADE ODETE VALADARES",
-        "location": "POINT (-43.5722 -19.491)",
-        "latitude": -19.491,
-        "longitude": -43.5722,
+        "location": "POINT (-43.957942603760614 -19.925261563293212)",
+        "latitude": -19.925261563293212,
+        "longitude": -43.957942603760614,
         "type": "07 HOSPITAL ESPECIALIZADO"
     },
     {
@@ -162,9 +162,9 @@
     {
         "name": "CENTRO DE SAUDE SAO MIGUEL ARCANJO",
         "id": "17 CENTRO DE SAUDE SAO MIGUEL ARCANJO",
-        "location": "POINT (-43.923602901801836 -19.73390175)",
-        "latitude": -19.73390175,
-        "longitude": -43.92360290180184,
+        "location": "POINT (-43.902752296811045 -19.933459471510677)",
+        "latitude": -19.933459471510677,
+        "longitude": -43.902752296811045,
         "type": "02 CENTRO DE SAUDE/UNIDADE BASICA"
     },
     {
