@@ -1,0 +1,360 @@
+---
+title: "Tp Final Otimização de grande porte two-dimensional non-guillotine cutting problems"
+author: Tasso Augusto Tomaz Pimenta 2021072198
+format: pdf
+references:
+  - id: andrade2014mip
+    title: "MIP models for two-dimensional non-guillotine cutting problems with usable leftovers"
+    author:
+      - family: Andrade
+        given: Ricardo
+      - family: Birgin
+        given: Ernesto G
+      - family: Morabito
+        given: Reinaldo
+      - family: Ronconi
+        given: Débora P
+    container-title: "Journal of the Operational Research Society"
+    volume: 65
+    issue: 11
+    page: "1649-1663"
+    issued:
+      year: 2014
+    publisher: "Taylor & Francis"
+
+  - id: data
+    title: "RESOURCES FOR TWO-DIMENSIONAL (AND THREE-DIMENSIONAL) CUTTING AND PACKING SOLUTION METHODS RESEARCH"
+    author: 
+      - family: Oliveira
+        given: Óscar
+      - family: Gamboa
+        given: Dorabela
+      - family: Silva
+        given: Elsa
+    container-title: "Journal of the Operational Research Society"
+    editors: "Hans Weghorn"
+    issued:
+      year: 2019
+    page: "131-138"
+
+  - id: adamowicz1976solution
+    title: "A solution of the rectangular cutting-stock problem"
+    author:
+      - family: Adamowicz
+        given: Michael
+      - family: Albano
+        given: Antonio
+    container-title: "IEEE Transactions on Systems, Man, and Cybernetics"
+    number: 4
+    page: "302--310"
+    issued:
+      year: 1976
+    publisher: "IEEE"
+
+---
+
+
+
+# Definição do problema via artigo
+``` 
+"Given a set of n demanded items with width wi and height hi, i = 1, ..., n,
+and a set of m available objects with width Wj , height Hj , and cost cj 
+per unit of area, j = 1, ..., m, the nonguillotine cutting problem (without 
+residual pieces) is defined as the one of cutting the demanded items from the 
+available objects minimizing the cost of the used objects. 
+No rotations are allowed and there are no other constraints related to the 
+positioning of the items within the objects, or the types of cuts of the objects 
+(e.g. guillotine or staged cuts). We assume that the cuts of the objects are 
+infinitely thin (otherwise we consider that the saw thickness was added to the 
+dimensions of the objects and items). We also assume that the items’ and objects’ 
+dimensions are positive integers and the objects’ costs per unit of area are 
+non-negative integers. These are not very restrictive hypotheses to deal with 
+real instances since, due to the finite precision of the cutting and measuring 
+tools and due to the finite precision used in any currency considered to define 
+the objects’ costs, they can be easily satisfied by a change of scale.
+
+Summing up, the MIP model of the tackled non-guillotine cutting problem is given by
+minimizing (3) on:
+uj ∈ {0, 1} (j = 1, ..., m), vij ∈ {0, 1} (i = 1, ..., n, j = 1, ..., m),
+xi, yi ∈ R (i = 1, ..., n), πii´ ∈ {0, 1} (i = 1, ..., n, i′ = i + 1, ..., n), 
+and τii′ ∈ {0, 1}(q = 1, ..., p, i = oq + 1, ..., oq + nq, i′ = oq + nq + 1, ..., n) 
+subject to (1,2,4,5,6). 
+
+There are m+mn+n(n−1)− Pp q=1 nq(nq −1)/2 binary variables (which coincide with m+mn+n(n−1)
+in the case in which there are no identical items), 2n continuous variables, 
+and 3mn + 3n + 2m Pp q=1 nq(nq − 1)/2 + 4m[n(n − 1)/2 −
+Pp q=1 nq(nq − 1)/2] constraints (which coincide with3mn + 3n + n(n − 1) 
+in the case in which there are no identical items)."
+```
+{@andrade2014mip}
+
+
+```{python}
+from mip import Model, xsum, minimize, BINARY, CONTINUOUS, MINIMIZE, INTEGER
+from time import time
+import numpy as np
+from data_tp_final import return_datas
+```
+# Problema descrito no artigo principal
+```{python}
+class AssortmentSolver:
+    def __init__(self, data):
+        self.data = data
+        self.model = Model()
+        self.solution = None
+        self.setup_model()
+    def setup_model(self):
+        model   = self.model
+        model.verbose = 0
+        Objects = self.data['Objects']
+        Items   = self.data['Items']
+        n = len(Items)
+        m = len(Objects)
+        I, J =range(n), range(m)
+        # Variables
+        model.u   = u   = [model.add_var(var_type=BINARY) for j in J]
+        model.v   = v   = [[model.add_var(var_type=BINARY) for j in J] for i in I]
+        model.x   = x   = [model.add_var(var_type=CONTINUOUS) for i in I]
+        model.y   = y   = [model.add_var(var_type=CONTINUOUS) for i in I]
+        model.pi  = pi  = [[model.add_var(var_type=BINARY) for i_ in I] for i in I]
+        model.tau = tau = [[model.add_var(var_type=BINARY) for i_ in I] for i in I]
+        
+        H = lambda j: Objects[j]['Height']
+        max_H = max(H(j) for j in J)
+        W = lambda j: Objects[j]['Length']
+        max_W = max(W(j) for j in J)
+        w = lambda i: Items[i]['Length']
+        h = lambda i: Items[i]['Height']
+        
+        # Objective (3)
+        model.objective = minimize(xsum(Objects[j]['Cost'] * W(j) * H(j) * u[j] for j in J))# (3)
+        
+        # Constraints (1)
+        for i in I:
+            for j in J:
+                model += (u[j] >= v[i][j])
+        # Constraints (2)
+        for i in I:
+            model += xsum(v[i][j] for j in J) == 1 
+        # Constraints (4)
+        for i in I:
+            model += (x[i]-w(i))/2 >= 0
+            model += (y[i]-w(i))/2 >= 0
+            for j in J:
+                model += (x[i]+w(i))/2 <= W(j) + (max_W- W(j))*(1-v[i][j])
+                model += (y[i]+h(i))/2 <= H(j) + (max_H- H(j))*(1-v[i][j])
+        for i in I:#complexidade alta
+            for i_ in range(i + 1, len(Items)):
+                for j in J:
+        # Constraints (5)
+                    model+=(x[i_]-w(i_))/2>=(x[i]+w(i))/2-max_W*(2-v[i][j]-v[i_][j]+pi[i][i_])
+                    model+=(y[i_]-h(i_))/2>=(y[i]+h(i))/2-max_H*(3-v[i][j]-v[i_][j]-pi[i][i_])
+        # Constraints (6)
+                    model+=(x[i_]+w(i_))/2<=(x[i]-w(i))/2+max_W*(2-v[i][j]-v[i_][j]+pi[i][i_]+tau[i][i_])
+                    model+=(x[i_]-w(i_))/2>=(x[i]+w(i))/2-max_W*(3-v[i][j]-v[i_][j]+pi[i][i_]-tau[i][i_])
+                    model+=(y[i_]+h(i_))/2<=(y[i]-h(i))/2+max_H*(3-v[i][j]-v[i_][j]-pi[i][i_]+tau[i][i_])
+                    model+=(y[i_]-h(i_))/2>=(y[i]+h(i))/2-max_H*(4-v[i][j]-v[i_][j]-pi[i][i_]-tau[i][i_])
+    def solve(self):
+        Objects = self.data['Objects']
+        Items   = self.data['Items']
+        model = self.model
+        n = len(Items)
+        m = len(Objects)
+        I, J =range(n), range(m)
+        inicio = time()
+        self.model.optimize()
+        self.time = time() - inicio
+        if self.model.num_solutions:
+            self.ub = model.objective_value
+            self.solution = [(i, j) for i in I for j in J if model.v[i][j].x >= 0.99]
+
+    def get_solution(self):
+        return self.solution
+    def get_ub(self):
+        return self.ub
+    def print_solution(self):
+        if self.solution is not None:
+            print('Solução encontrada em {:.2f} segundos'.format(self.time))
+            print(f'Quantidade total de objetos é {len(self.data["Objects"])}')
+            print(f'Quantidade total de Itemns é {len(self.data["Items"])}')
+            chosen_item = set()
+            chosen_object = set()
+            for item, obj in self.solution:
+                chosen_item.add(item)
+                chosen_object.add(obj)
+                x_pos = self.model.x[item].x
+                y_pos = self.model.y[item].x
+                item_length = self.data['Items'][item]['Length']
+                item_height = self.data['Items'][item]['Height']
+                obj_length = self.data['Objects'][obj]['Length']
+                obj_height = self.data['Objects'][obj]['Height']
+                print(f'Item {item+1} é colocado no objeto {obj+1}')
+                print(f'  - Posição: ({x_pos:.2f}, {y_pos:.2f})')
+                print(f'  - Tamanho do item: {item_length} x {item_height}')
+                print(f'  - Tamanho do objeto: {obj_length} x {obj_height}')
+                print()
+            # List objects that were not chosen
+            not_chosen_item = set(range(len(self.data['Items']))) - chosen_item
+            not_chosen_obj = set(range(len(self.data['Objects']))) - chosen_object
+            if not_chosen_item:
+                print('Itens não escolhidos:')
+                for item in not_chosen_item:
+                    print(f'  - Itens {item+1} - tamanho {self.data["Items"][item]["Length"]} x {self.data["Items"][item]["Height"]}')
+            else:
+                print('Todos os Itens foram escolhidos.')
+            if not_chosen_obj:
+                print('Objetos não escolhidos:')
+                for obj in not_chosen_obj:
+                    print(f'  - Objetos {obj+1} - tamanho {self.data["Objects"][obj]["Length"]} x {self.data["Objects"][obj]["Height"]}')
+            else:
+                print('Todos os Objetos foram escolhidos.')
+        else:
+            print('Nenhuma solução viável encontrada.')
+
+```
+
+## Data 
+A data foi retirada do Git: @data
+A função "return_datas()" entrega a data no seguinte formato:
+```{python}
+'''
+datas = return_datas()
+Objects    = [datas['Objects']]
+J = range(Objects)
+    Stock   =Objects[j for J]['Stock  ']
+    Cost    =Objects[j for J]['Cost   ']
+    Length  =Objects[j for J]['Length ']
+    Height  =Objects[j for J]['Height ']
+
+Items      = [datas['Items']]
+I = range(Items)
+    Demand   = Items[i for I]['Demand   ']
+    DemandMax= Items[i for I]['DemandMax']
+    Value    = Items[i for I]['Value    ']
+    Length   = Items[i for I]['Length   ']
+    Height   = Items[i for I]['Height   ']
+'''
+``` 
+[Link para o dataset](https://github.com/Oscar-Oliveira/OR-Datasets/blob/master/Cutting-and-Packing/2D/Datasets/)
+
+# Usando relaxação lagrangeana para resolver o problema
+```{python}
+def AssortmentSolverLagrangean(data, ub):
+    Objects = data['Objects']
+    Items   = data['Items']
+    m = len(Objects)
+    n = len(Items)
+    I,J = range(n),range(m)
+    H = lambda j: Objects[j]['Height']
+    W = lambda j: Objects[j]['Length']
+    w = lambda i: Items[i]['Length']
+    h = lambda i: Items[i]['Height']
+    c = lambda j: Objects[j]['Cost']
+    # Initialize variables
+    u = np.zeros(m)
+    v = np.zeros((n, m))
+    x = np.zeros(n)
+    y = np.zeros(n)
+    lambda_ij = np.zeros((n, m))
+    mu = 1.0  # Initial step size
+    lb = -float('inf')
+    gap = float('inf')
+    h_iter = 0
+    def print_solution_lagrangian(solution):
+        if solution is not None:
+            print('Solução encontrada')
+            print(f'Quantidade total de objetos é {len(data["Objects"])}')
+            print(f'Quantidade total de Itens é {len(data["Items"])}')
+            chosen_item = set()
+            chosen_object = set()
+            for item, obj in solution:
+                chosen_item.add(item)
+                chosen_object.add(obj)
+                item_length = data['Items'][item]['Length']
+                item_height = data['Items'][item]['Height']
+                obj_length = data['Objects'][obj]['Length']
+                obj_height = data['Objects'][obj]['Height']
+                print(f'Item {item+1} é colocado no objeto {obj+1}')
+                print(f'  - Tamanho do item: {item_length} x {item_height}')
+                print(f'  - Tamanho do objeto: {obj_length} x {obj_height}')
+                print()
+            # List objects that were not chosen
+            not_chosen_item = set(range(len(data['Items']))) - chosen_item
+            not_chosen_obj = set(range(len(data['Objects']))) - chosen_object
+            if not_chosen_item:
+                print('Itens não escolhidos:')
+                for item in not_chosen_item:
+                    print(f'  - Itens {item+1} - tamanho {data["Items"][item]["Length"]} x {data["Items"][item]["Height"]}')
+            else:
+                print('Todos os Itens foram escolhidos.')
+            if not_chosen_obj:
+                print('Objetos não escolhidos:')
+                for obj in not_chosen_obj:
+                    print(f'  - Objetos {obj+1} - tamanho {data["Objects"][obj]["Length"]} x {data["Objects"][obj]["Height"]}')
+            else:
+                print('Todos os Objetos foram escolhidos.')
+        else:
+            print('Nenhuma solução viável encontrada.')
+    def solve_subproblem_u(lambda_ij):
+        model = Model(sense=MINIMIZE)
+        model.verbose = 0
+        u_vars = [model.add_var(var_type=BINARY) for j in J]
+        model.objective = xsum(c(j) * W(j) * H(j) * u_vars[j] - xsum(lambda_ij[i][j] * u_vars[j] for i in I) for j in J)
+        model.optimize()
+        return model, u_vars
+    def solve_subproblem_v(lambda_ij):
+        model = Model(sense=MINIMIZE)
+        model.verbose = 0
+        v_vars = [[model.add_var(var_type=BINARY) for j in J] for i in I]
+        for i in I:
+            model += xsum(v_vars[i][j] for j in J) == 1
+        model.objective = xsum(lambda_ij[i][j] * v_vars[i][j] for i in I for j in J)
+        model.optimize()
+        return model, v_vars
+    while h_iter < 100 and gap > 1e-4:
+        h_iter += 1
+        subgradient = np.zeros((n, m))
+        infimum = np.sum(lambda_ij)
+        model_u, u_vars = solve_subproblem_u(lambda_ij)
+        model_v, v_vars = solve_subproblem_v(lambda_ij)
+        infimum += model_u.objective_value + model_v.objective_value
+        for i in I:
+            for j in J:
+                subgradient[i][j] = v_vars[i][j].x - u_vars[j].x
+        if infimum > lb:
+            lb = infimum
+        else:
+            mu /= 2.0
+        norm = np.sum(subgradient**2)
+        gap = 100.0 * (ub - lb) / ub
+        step = mu * (ub - lb) / (norm)
+        lambda_ij += step * subgradient
+        print(f"Iteration: {h_iter}, UB: {ub:.4f}, LB: {lb:.4f}, Gap: {gap:.4f}%")
+        if norm < 1e-4 or mu < 1e-4:
+            print(norm, mu,h_iter,gap, lb)
+            break
+        solution = []
+        for i in I:
+            for j in J:
+                if v_vars[i][j].x >= 0.99:
+                    solution.append((i, j))
+        print_solution_lagrangian(solution)
+```
+
+# Rodando problemas 
+
+# Testando o Problema
+```{python}
+    datas = return_datas()
+    dataset = []
+    for name, data in datas.items():
+        print(name)
+        print('\n')
+        dataset.append(data)
+        solver = AssortmentSolver(data)
+        solver.solve()
+        solver.print_solution()
+        print('\n')
+        AssortmentSolverLagrangean(data, solver.get_ub())
+        print('\n')
+```
